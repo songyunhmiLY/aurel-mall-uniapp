@@ -1,0 +1,64 @@
+/* H5：宽屏居中手机框；窄屏铺满，不再套一层外框。 */
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  background: #0b0e13;
+}
+
+#app,
+uni-app,
+uni-page,
+uni-page-wrapper,
+uni-page-body {
+  height: 100%;
+}
+
+uni-page-body {
+  overflow: hidden;
+  background: var(--paper);
+}
+
+@media (min-width: 431px) {
+  html,
+  body,
+  #app {
+    background: #0b0e13 !important;
+  }
+
+  uni-app {
+    width: min(390px, calc(100vw - 64px)) !important;
+    height: min(844px, calc(100vh - 64px)) !important;
+    position: fixed !important;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 28px;
+    overflow: hidden;
+    background: var(--paper);
+    box-shadow:
+      0 0 0 10px #1a1f27,
+      0 0 0 11px #3a4250,
+      0 30px 80px rgba(0, 0, 0, 0.45);
+  }
+}
+
+@media (max-width: 430px) {
+  html,
+  body,
+  #app,
+  uni-app {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: none !important;
+    background: var(--paper) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    transform: none !important;
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    overflow: hidden;
+  }
+}

@@ -1,0 +1,42 @@
+/* 与 H5 演示一致的科技 + 健康色板。冷白底、石墨字、淡青点缀。 */
+
+html,
+page,
+uni-app,
+#app {
+  --ink: #161a1f;
+  --ink-2: #1e252c;
+  --ink-3: #2a333c;
+  --ink-soft: #4a5560;
+  --gold: #5e8f8a;
+  --gold-d: #3f6b67;
+  --gold-l: #c5d9d6;
+  --gold-dim: rgba(94, 143, 138, 0.16);
+  --paper: #f4f6f7;
+  --paper-2: #e8ecee;
+  --card: #ffffff;
+  --card-2: #f7f9fa;
+  --line: #e2e6e8;
+  --line-d: #d0d5d8;
+  --text: #1a1e23;
+  --muted: #5e666d;
+  --muted-2: #8a9197;
+  --ok: #2f6b5e;
+  --ok-dim: #e6f2ef;
+  --warn: #8a5a2b;
+  --warn-dim: #f4ebe0;
+  --danger: #8e4336;
+  --danger-dim: #f6e8e5;
+  --shadow: 0 8px 24px rgba(18, 24, 32, 0.06);
+  --radius: 14px;
+  --font: 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', 'Noto Sans CJK SC', 'Microsoft YaHei',
+    system-ui, sans-serif;
+  font-family: var(--font);
+  color: var(--text);
+  background: var(--paper);
+}
+
+page {
+  font-size: 15px;
+  line-height: 1.5;
+}

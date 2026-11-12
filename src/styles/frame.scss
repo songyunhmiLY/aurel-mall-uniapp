@@ -1,0 +1,243 @@
+/* 手机内的状态栏、导航、底栏。外层设备框在 phone-frame.scss，仅 H5 宽屏。 */
+
+.frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--paper);
+  color: var(--text);
+  overflow: hidden;
+}
+
+.frame__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.frame__overlay > view {
+  pointer-events: auto;
+  height: 100%;
+}
+
+.frame--ink {
+  background: var(--ink);
+  color: #f3f6f7;
+}
+
+.frame__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.frame__body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.status-bar {
+  height: 48px;
+  flex-shrink: 0;
+  background: var(--ink);
+  color: #f3f6f7;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 22px 8px;
+  position: relative;
+}
+
+.status-bar__time {
+  width: 64px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.status-bar__island {
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  transform: translateX(-50%);
+  width: 118px;
+  height: 32px;
+  background: #000;
+  border-radius: 20px;
+}
+
+.status-bar__icons {
+  width: 70px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.nav-bar {
+  height: 44px;
+  flex-shrink: 0;
+  background: var(--ink);
+  color: #f3f6f7;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 12px 0 8px;
+  position: relative;
+}
+
+.nav-bar__side {
+  width: 88px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  z-index: 1;
+}
+
+.nav-bar__side--right {
+  margin-left: auto;
+  justify-content: flex-end;
+}
+
+.nav-bar__title {
+  position: absolute;
+  left: 88px;
+  right: 88px;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-bar__back,
+.nav-bar__icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f3f6f7;
+  position: relative;
+}
+
+.nav-capsule {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f3f6f7;
+}
+
+.nav-capsule__btn {
+  width: 40px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-capsule__div {
+  width: 1px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.nav-badge {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: var(--gold);
+  color: var(--ink);
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tabbar {
+  height: 64px;
+  flex-shrink: 0;
+  background: rgba(255, 252, 247, 0.96);
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: row;
+  padding-bottom: 10px;
+}
+
+.tabbar__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  padding-top: 6px;
+}
+
+.tabbar__item.is-active {
+  color: var(--ink);
+}
+
+.tabbar__item.is-active .tabbar__ico {
+  color: var(--gold-d);
+}
+
+.tabbar__ico {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lock-page {
+  padding: 48px 28px 32px;
+  text-align: center;
+}
+
+.lock-mark {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lock-title {
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.lock-text {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}

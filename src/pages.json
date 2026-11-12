@@ -2,125 +2,122 @@
   "pages": [
     {
       "path": "pages/home/index",
-      "style": { "navigationBarTitleText": "首页" }
+      "style": { "navigationBarTitleText": "奥瑞尔", "navigationStyle": "custom" }
     },
     {
-      "path": "pages/shop/index",
-      "style": { "navigationBarTitleText": "创业专区" }
+      "path": "pages/mall/index",
+      "style": { "navigationBarTitleText": "会员商城", "navigationStyle": "custom" }
     },
     {
-      "path": "pages/cart/index",
-      "style": { "navigationBarTitleText": "购物车" }
+      "path": "pages/wallet/index",
+      "style": { "navigationBarTitleText": "钱包", "navigationStyle": "custom" }
     },
     {
       "path": "pages/mine/index",
-      "style": { "navigationBarTitleText": "我的" }
+      "style": { "navigationBarTitleText": "我的", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/shop/index",
+      "style": { "navigationBarTitleText": "创业专区", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/cart/index",
+      "style": { "navigationBarTitleText": "购物车", "navigationStyle": "custom" }
     },
     {
       "path": "pages/welfare/index",
-      "style": { "navigationBarTitleText": "福利专场" }
+      "style": { "navigationBarTitleText": "福利专场", "navigationStyle": "custom" }
     },
     {
       "path": "pages/founder/index",
-      "style": { "navigationBarTitleText": "联合创始人" }
+      "style": { "navigationBarTitleText": "联合创始人", "navigationStyle": "custom" }
     },
     {
       "path": "pages/team/index",
-      "style": { "navigationBarTitleText": "创业团队" }
+      "style": { "navigationBarTitleText": "创业团队", "navigationStyle": "custom" }
     },
     {
       "path": "pages/invite/index",
-      "style": { "navigationBarTitleText": "邀请好友" }
+      "style": { "navigationBarTitleText": "邀请好友", "navigationStyle": "custom" }
     },
     {
       "path": "pages/auth/login",
-      "style": { "navigationBarTitleText": "登录" }
+      "style": { "navigationBarTitleText": "登录", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/auth/register",
+      "style": { "navigationBarTitleText": "注册", "navigationStyle": "custom" }
     },
     {
       "path": "pages/settings/index",
-      "style": { "navigationBarTitleText": "设置" }
+      "style": { "navigationBarTitleText": "设置", "navigationStyle": "custom" }
     },
     {
       "path": "pages/settings/payment-account",
-      "style": { "navigationBarTitleText": "收款账户" }
+      "style": { "navigationBarTitleText": "收款账户", "navigationStyle": "custom" }
     },
     {
       "path": "pages/settings/addresses",
-      "style": { "navigationBarTitleText": "收货地址" }
+      "style": { "navigationBarTitleText": "收货地址", "navigationStyle": "custom" }
     },
     {
       "path": "pages/settings/address-edit",
-      "style": { "navigationBarTitleText": "编辑地址" }
+      "style": { "navigationBarTitleText": "收货地址", "navigationStyle": "custom" }
     },
     {
       "path": "pages/settings/agreements",
-      "style": { "navigationBarTitleText": "协议" }
+      "style": { "navigationBarTitleText": "用户协议", "navigationStyle": "custom" }
     },
     {
       "path": "pages/settings/privacy",
-      "style": { "navigationBarTitleText": "隐私政策" }
+      "style": { "navigationBarTitleText": "隐私政策", "navigationStyle": "custom" }
     },
     {
       "path": "pages/settings/pay-password",
-      "style": { "navigationBarTitleText": "支付密码" }
+      "style": { "navigationBarTitleText": "支付密码设置", "navigationStyle": "custom" }
     },
     {
       "path": "pages/product/list",
-      "style": { "navigationBarTitleText": "商品" }
+      "style": { "navigationBarTitleText": "商品", "navigationStyle": "custom" }
     },
     {
       "path": "pages/product/detail",
-      "style": { "navigationBarTitleText": "商品详情" }
+      "style": { "navigationBarTitleText": "商品详情", "navigationStyle": "custom" }
     },
     {
       "path": "pages/order/list",
-      "style": { "navigationBarTitleText": "我的订单" }
+      "style": { "navigationBarTitleText": "我的订单", "navigationStyle": "custom" }
     },
     {
       "path": "pages/order/detail",
-      "style": { "navigationBarTitleText": "订单详情" }
+      "style": { "navigationBarTitleText": "订单详情", "navigationStyle": "custom" }
     },
     {
       "path": "pages/article/detail",
-      "style": { "navigationBarTitleText": "资讯详情" }
+      "style": { "navigationBarTitleText": "资讯详情", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/wallet/transfer",
+      "style": { "navigationBarTitleText": "消费转账", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/service/index",
+      "style": { "navigationBarTitleText": "联系客服", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/notices/index",
+      "style": { "navigationBarTitleText": "系统通知", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/feedback/index",
+      "style": { "navigationBarTitleText": "我要反馈", "navigationStyle": "custom" }
     }
   ],
   "globalStyle": {
+    "navigationStyle": "custom",
     "navigationBarTextStyle": "white",
-    "navigationBarTitleText": "奥瑞尔经销商城",
-    "navigationBarBackgroundColor": "#0E7C74",
-    "backgroundColor": "#F2F7F6"
-  },
-  "tabBar": {
-    "color": "#7A908C",
-    "selectedColor": "#0E7C74",
-    "backgroundColor": "#FFFFFF",
-    "borderStyle": "white",
-    "list": [
-      {
-        "pagePath": "pages/home/index",
-        "text": "首页",
-        "iconPath": "static/tab/home.png",
-        "selectedIconPath": "static/tab/home-active.png"
-      },
-      {
-        "pagePath": "pages/shop/index",
-        "text": "创业专区",
-        "iconPath": "static/tab/shop.png",
-        "selectedIconPath": "static/tab/shop-active.png"
-      },
-      {
-        "pagePath": "pages/cart/index",
-        "text": "购物车",
-        "iconPath": "static/tab/cart.png",
-        "selectedIconPath": "static/tab/cart-active.png"
-      },
-      {
-        "pagePath": "pages/mine/index",
-        "text": "我的",
-        "iconPath": "static/tab/mine.png",
-        "selectedIconPath": "static/tab/mine-active.png"
-      }
-    ]
+    "navigationBarTitleText": "奥瑞尔",
+    "navigationBarBackgroundColor": "#161A1F",
+    "backgroundColor": "#F4F6F7"
   }
 }

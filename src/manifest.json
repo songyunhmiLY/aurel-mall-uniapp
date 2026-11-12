@@ -68,7 +68,7 @@
         "usingComponents" : true
     },
     "h5" : {
-        "title" : "奥瑞尔经销商城",
+        "title" : "奥瑞尔 AUREL",
         "router" : {
             "mode" : "hash",
             "base" : "/"
