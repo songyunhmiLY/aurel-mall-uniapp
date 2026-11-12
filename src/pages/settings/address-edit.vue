@@ -1,26 +1,41 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import AppFrame from '@/components/chrome/AppFrame.vue'
+
+const name = ref('')
+const phone = ref('')
+const region = ref('')
+const detail = ref('')
+
 function save() {
-  uni.showToast({ title: '地址保存规则尚未确定', icon: 'none' })
+  if (!name.value || !phone.value || !region.value || !detail.value) {
+    uni.showToast({ title: '请填写完整地址', icon: 'none' })
+    return
+  }
+  uni.showToast({ title: '已保存（演示）', icon: 'none' })
 }
 </script>
 
 <template>
-  <view class="page">
-    <text class="h1">编辑地址</text>
-    <text class="muted">字段先占位，不会写入服务器。</text>
-    <view class="card">
-      <input class="field" placeholder="收货人" />
-      <input class="field" placeholder="手机号" />
-      <input class="field" placeholder="详细地址" />
+  <AppFrame title="收货地址">
+    <view class="pad">
+      <view class="field">
+        <text class="field__label">收货人</text>
+        <input v-model="name" class="field__input" placeholder="姓名" />
+      </view>
+      <view class="field">
+        <text class="field__label">联系电话</text>
+        <input v-model="phone" class="field__input" placeholder="电话" />
+      </view>
+      <view class="field">
+        <text class="field__label">所在地区</text>
+        <input v-model="region" class="field__input" placeholder="国家 / 省 / 城市" />
+      </view>
+      <view class="field">
+        <text class="field__label">详细地址</text>
+        <input v-model="detail" class="field__input" placeholder="街道、门牌" />
+      </view>
+      <view class="btn btn-primary btn-block hit" @click="save">保存</view>
     </view>
-    <button class="btn" @click="save">保存（占位）</button>
-  </view>
+  </AppFrame>
 </template>
-
-<style scoped>
-.field {
-  margin-top: 16rpx;
-  padding: 16rpx 0;
-  border-bottom: 1px solid #e6f0ee;
-}
-</style>

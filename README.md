@@ -37,7 +37,7 @@ Windows 命令提示符复制环境文件：
 copy .env.example .env
 ```
 
-浏览器打开 <http://localhost:5173>。
+浏览器打开 <http://localhost:5173>。宽屏会把页面收进居中的手机框里；窄屏铺满，不再套外框。路由仍是 hash。
 
 其他脚本：
 
@@ -75,7 +75,8 @@ https://api.example.com/api/v1
 两种改法，任选其一，改完后停掉再重新运行：
 
 1. **环境变量（命令行，以及会读取 Vite env 的 HBuilder X 运行）**  
-   复制 `.env.example` 为项目根目录的 `.env`，修改 `VITE_API_BASE_URL`。`.env` 已在 `.gitignore` 中，不要提交。
+   复制 `.env.example` 为项目根目录的 `.env`，修改 `VITE_API_BASE_URL`。`.env` 已在 `.gitignore` 中，不要提交。  
+   若配置了 `VITE_DEMO_LOGIN_PASSWORD_SHA256`（密码的 SHA-256 小写十六进制），H5 会先要求用户名 `root` 通过预览闸。不配置则不拦截，源码里也不写明文密码。
 2. **小配置文件（HBuilder X 没注入环境变量时用这个）**  
    直接改 `src/config/api.ts` 里的 `FALLBACK_API_BASE_URL`。解析顺序是：环境变量有值就用环境变量，否则用这个常量。
 
@@ -92,7 +93,7 @@ src/api/          接口模块。新增接口放这里，不要写进页面
 src/stores/       Pinia
 src/config/       API 根地址
 src/platform/     仅微信小程序可用的能力占位
-src/navigation/   路由表。Tab 页用 switchTab
+src/navigation/   路由表。底部四个 Tab 用 reLaunch，其余页面用 navigateTo
 src/types/        按功能分的类型
 src/static/       静态资源（含 Tab 图标）
 ```
@@ -109,11 +110,11 @@ H5 资讯详情对应常见的 `#/article/:id`，在 uni-app 里是：
 
 ## 页面骨架
 
-底部 Tab：首页、创业专区、购物车、我的。
+底部 Tab：首页、商城、钱包、我的。创业专区从首页进入，不占 Tab。购物车从商城导航进入。
 
 首页有轮播图、滚动字幕、资讯知识，以及创业专区、福利专场、联合创始人入口。问候语不展示职位。
 
-「我的」里进入创业团队、邀请好友（海报以后再做）、订单和登录。设置是右上角齿轮。收款账户、收货地址、协议、隐私政策、支付密码都在设置下面，目前都是占位页。
+「我的」里有订单状态、会员码、邀请好友海报和创业团队。设置是头像旁的齿轮。收款账户、收货地址、用户协议、隐私政策、支付密码都在设置下面。
 
 创业团队页展示「我的市场」（单位是「个」）、「总业绩」（只表示本月合计）和「市场情况」（最多 3 个市场，每项含本月 / 最近7天 / 当日）。没有数据时显示「暂无市场」。
 

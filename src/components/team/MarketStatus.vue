@@ -1,53 +1,44 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import EmptyHint from '@/components/common/EmptyHint.vue'
+import { yuan } from '@/demo/format'
 import type { MarketBrief } from '@/types/team'
 
 const props = defineProps<{ markets: MarketBrief[] }>()
 const visible = computed(() => props.markets.slice(0, 3))
+
+function amount(value: string): string {
+  const num = Number(value)
+  return Number.isFinite(num) ? yuan(num) : value
+}
 </script>
 
 <template>
-  <view class="block">
-    <text class="block__title">市场情况</text>
-    <EmptyHint v-if="visible.length === 0" text="暂无市场" />
-    <view v-for="item in visible" :key="item.id" class="market">
-      <text class="market__name">{{ item.name }}</text>
-      <view class="market__row">
-        <text>本月 {{ item.monthAmount }}</text>
-        <text>最近7天 {{ item.weekAmount }}</text>
-        <text>当日 {{ item.dayAmount }}</text>
+  <view>
+    <view class="section-title">市场情况</view>
+    <view v-if="visible.length === 0" class="empty">
+      <view class="empty__title">暂无市场</view>
+    </view>
+    <view v-else class="market-list">
+      <view v-for="item in visible" :key="item.id" class="market-card">
+        <view class="mc-head">
+          <view class="tr-av">{{ item.name.slice(0, 1) }}</view>
+          <text class="fw-6">{{ item.name }}</text>
+        </view>
+        <view class="mc-metrics">
+          <view>
+            <text class="mc-lab">本月</text>
+            <text class="mc-num">{{ amount(item.monthAmount) }}</text>
+          </view>
+          <view>
+            <text class="mc-lab">最近7天</text>
+            <text class="mc-num">{{ amount(item.weekAmount) }}</text>
+          </view>
+          <view>
+            <text class="mc-lab">当日</text>
+            <text class="mc-num">{{ amount(item.dayAmount) }}</text>
+          </view>
+        </view>
       </view>
     </view>
   </view>
 </template>
-
-<style scoped>
-.block {
-  margin-top: 24rpx;
-  padding: 24rpx;
-  background: #fff;
-  border-radius: 20rpx;
-}
-
-.block__title,
-.market__name {
-  display: block;
-  font-weight: 600;
-}
-
-.market {
-  margin-top: 20rpx;
-  padding-top: 16rpx;
-  border-top: 1px solid #e6f0ee;
-}
-
-.market__row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx 24rpx;
-  margin-top: 10rpx;
-  color: #3d5552;
-  font-size: 24rpx;
-}
-</style>

@@ -3,4 +3,8 @@ export interface CartLine {
   name: string
   quantity: number
   priceText: string
+  price?: number
+  pv?: number
+  tone?: string
+  checked?: boolean
 }

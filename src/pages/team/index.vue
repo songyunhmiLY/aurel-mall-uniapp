@@ -1,42 +1,44 @@
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { loadTeamOverview } from '@/api/team'
+import AppFrame from '@/components/chrome/AppFrame.vue'
 import MarketOverview from '@/components/team/MarketOverview.vue'
 import MarketStatus from '@/components/team/MarketStatus.vue'
-import type { TeamOverview } from '@/types/team'
+import { placeholderMarkets } from '@/demo/catalog'
+import { money } from '@/demo/format'
+import { usePreviewStore } from '@/stores/preview'
+import type { MarketBrief } from '@/types/team'
 
-const overview = ref<TeamOverview>({
-  marketCount: 0,
-  monthPerformance: '0.00',
-  markets: [],
+const preview = usePreviewStore()
+const markets = ref<MarketBrief[]>(preview.isMember ? placeholderMarkets.slice(0, 2) : [])
+
+const monthTotal = computed(() => {
+  const sum = markets.value.reduce((total, item) => total + (Number(item.monthAmount) || 0), 0)
+  return money(sum)
 })
 
 onLoad(() => {
   loadTeamOverview()
     .then((data) => {
-      overview.value = data
+      markets.value = data.markets
     })
     .catch(() => undefined)
 })
+
+const count = computed(() => markets.value.length)
 </script>
 
 <template>
-  <view class="page">
-    <text class="h1">创业团队</text>
-    <text class="muted">业绩只展示本月合计。</text>
-    <view class="gap">
-      <MarketOverview
-        :market-count="overview.marketCount"
-        :month-performance="overview.monthPerformance"
-      />
-      <MarketStatus :markets="overview.markets" />
-    </view>
-  </view>
+  <AppFrame title="创业团队">
+    <view class="team-banner" />
+    <MarketOverview
+      :name="preview.profile.name || '访客'"
+      :initial="preview.avatarText"
+      :membership="preview.isMember ? '会员' : '尚未成为会员'"
+      :market-count="count"
+      :month-performance="monthTotal"
+    />
+    <MarketStatus :markets="markets" />
+  </AppFrame>
 </template>
-
-<style scoped>
-.gap {
-  margin-top: 24rpx;
-}
-</style>
