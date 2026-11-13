@@ -9,6 +9,7 @@ import OrderPay from '@/components/order/OrderPay.vue'
 import { formatFen, formatInstant, yuanFen } from '@/demo/format'
 import { openPage, routes, withId } from '@/navigation/routes'
 import { statusLabel, zoneLabel } from '@/orders/labels'
+import { prepareSubscribeTemplates, requestSubscribeFor } from '@/platform/subscribe-message'
 import { useWalletStore } from '@/stores/wallet'
 import type { OrderView } from '@/types/order'
 
@@ -32,6 +33,7 @@ onLoad((query) => {
 })
 
 onShow(() => {
+  prepareSubscribeTemplates()
   void load()
 })
 
@@ -66,12 +68,15 @@ async function applyRefund() {
   if (!order.value || refunding.value || !canRefund.value) return
   refunding.value = true
   refundError.value = ''
+  const subscribe = requestSubscribeFor(['refund_result'])
   try {
     const created = await applyOrderRefund(order.value.id)
     void wallets.load()
+    await subscribe
     uni.showToast({ title: '已提交退款申请', icon: 'none' })
     openPage(withId(routes.refundDetail, created.id))
   } catch (error) {
+    await subscribe
     refundError.value = sessionErrorMessage(error, '退款未申请')
   } finally {
     refunding.value = false

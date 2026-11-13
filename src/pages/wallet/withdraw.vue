@@ -9,6 +9,7 @@ import { sessionErrorMessage } from '@/auth/account-session'
 import AppFrame from '@/components/chrome/AppFrame.vue'
 import { compareDecimal, yuanFen, yuanInputToFen } from '@/demo/format'
 import { openPage, routes, withId } from '@/navigation/routes'
+import { prepareSubscribeTemplates, requestSubscribeFor } from '@/platform/subscribe-message'
 import { usePreviewStore } from '@/stores/preview'
 import { useWalletStore } from '@/stores/wallet'
 
@@ -30,6 +31,7 @@ const availableFen = computed(() =>
 const blocked = computed(() => !preview.isMember || memberBlocked.value)
 
 onShow(() => {
+  prepareSubscribeTemplates()
   void wallets.load()
   void load()
 })
@@ -70,13 +72,16 @@ async function submit() {
   }
   pending.value = true
   errorText.value = ''
+  const subscribe = requestSubscribeFor(['withdrawal_outcome'])
   try {
     const created = await applyWithdrawal(fen)
     amountYuan.value = ''
     void wallets.load()
+    await subscribe
     uni.showToast({ title: '已提交申请', icon: 'none' })
     openPage(withId(routes.withdrawalDetail, created.id))
   } catch (error) {
+    await subscribe
     const message = sessionErrorMessage(error, '提现未申请')
     if (message.includes('非会员不能提现')) {
       memberBlocked.value = true
