@@ -1,6 +1,7 @@
 /**
- * 微信小程序能力占位。
- * 登录、手机号、支付的产品规则都未确定，这里只保留调用位置。
+ * 仅微信小程序可用的能力。
+ * 登录使用 wx.login 的 code。手机号按钮只取出授权 code，不在这里决定账号。
+ * 支付仍未接入。
  */
 
 interface WxLoginApi {
@@ -34,7 +35,6 @@ export const isMpWeixin = detectMpWeixin()
 export function requestWechatLoginCode(): Promise<string> {
   return new Promise((resolve, reject) => {
     // #ifdef MP-WEIXIN
-    // 只取 code。账号如何创建、是否绑定手机号，都不在这里决定。
     wx.login({
       success(res) {
         if (res.code) {
@@ -52,14 +52,9 @@ export function requestWechatLoginCode(): Promise<string> {
   })
 }
 
-export function handlePhoneNumberEvent(event: PhoneAuthEvent): void {
-  // #ifdef MP-WEIXIN
-  // 手机号授权结果只作占位，不上传、不绑定账号。
-  void event.detail?.errMsg
-  // #endif
-  // #ifndef MP-WEIXIN
-  void event
-  // #endif
+export function readPhoneAuthCode(event: PhoneAuthEvent): string {
+  const code = event.detail?.code
+  return typeof code === 'string' ? code.trim() : ''
 }
 
 export function requestWechatPayPlaceholder(): Promise<void> {

@@ -61,6 +61,10 @@
       "style": { "navigationBarTitleText": "收货地址", "navigationStyle": "custom" }
     },
     {
+      "path": "pages/settings/real-name",
+      "style": { "navigationBarTitleText": "实名认证", "navigationStyle": "custom" }
+    },
+    {
       "path": "pages/settings/address-edit",
       "style": { "navigationBarTitleText": "收货地址", "navigationStyle": "custom" }
     },

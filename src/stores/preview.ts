@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { guestProfile, memberProfile, nonMemberProfile, type PreviewProfile } from '@/demo/profile'
+import { useUserStore } from '@/stores/user'
 import {
   readConsumeOverride,
   readPayPassword,
@@ -12,12 +13,14 @@ import {
 } from '@/demo/preview-session'
 
 export const usePreviewStore = defineStore('preview', () => {
+  const user = useUserStore()
   const role = ref<PreviewRole>(readRole())
   const nameOverride = ref('')
   const payPassword = ref(readPayPassword())
   const consumeOverride = ref<number | null>(readConsumeOverride())
+  const entering = ref(false)
 
-  const loggedIn = computed(() => role.value !== 'guest')
+  const loggedIn = computed(() => user.token.length > 0)
   const isMember = computed(() => role.value === 'member')
 
   const profile = computed<PreviewProfile>(() => {
@@ -31,6 +34,10 @@ export const usePreviewStore = defineStore('preview', () => {
   })
 
   const avatarText = computed(() => (profile.value.name || '客').slice(0, 1))
+
+  function setEntering(value: boolean) {
+    entering.value = value
+  }
 
   function setRole(next: PreviewRole) {
     role.value = next
@@ -60,11 +67,13 @@ export const usePreviewStore = defineStore('preview', () => {
 
   return {
     role,
+    entering,
     loggedIn,
     isMember,
     profile,
     avatarText,
     payPassword,
+    setEntering,
     setRole,
     applyNickname,
     setPayPassword,

@@ -955,10 +955,27 @@ textarea {
   overflow: hidden;
 }
 
-.detail-art svg {
+.detail-art svg,
+.detail-art .prod-cover {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+.prod-cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: var(--paper-2);
+}
+
+.prod-cover--md {
+  width: 96px;
+  height: 96px;
+  aspect-ratio: auto;
+  border-radius: 12px;
+  flex-shrink: 0;
 }
 
 .detail-body {
@@ -1577,11 +1594,18 @@ textarea {
   padding: 0 14px;
 }
 
-.auth-page .btn-gold {
+.auth-page .btn-gold,
+.auth-page .btn-ghost {
   margin-top: 28px;
   height: 48px;
   border-radius: 8px;
   letter-spacing: 0.16em;
+}
+
+.auth-page .btn-ghost {
+  margin-top: 12px;
+  color: #f3f6f7;
+  border-color: #3a4554;
 }
 
 .auth-switch {

@@ -1,21 +1,42 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import type { AuthSession } from '@/api/auth'
 import { getToken, setToken } from '@/auth/session'
 
 export const useUserStore = defineStore('user', () => {
   const token = ref(getToken())
-  const nickname = ref('访客')
+  const userId = ref('')
+  const nickname = ref('')
+  const authError = ref('')
   const avatarText = computed(() => nickname.value.slice(0, 1) || '客')
 
-  function applyNickname(value: string) {
-    const next = value.trim()
-    if (next) nickname.value = next
+  function applySession(session: AuthSession) {
+    token.value = session.token
+    setToken(session.token)
+    userId.value = session.user.id
+    if (session.user.nickname) nickname.value = session.user.nickname
+    authError.value = ''
   }
 
-  function updateToken(value: string) {
-    token.value = value
-    setToken(value)
+  function clearSession() {
+    token.value = ''
+    setToken('')
+    userId.value = ''
+    nickname.value = ''
   }
 
-  return { token, nickname, avatarText, applyNickname, updateToken }
+  function setAuthError(message: string) {
+    authError.value = message
+  }
+
+  return {
+    token,
+    userId,
+    nickname,
+    avatarText,
+    authError,
+    applySession,
+    clearSession,
+    setAuthError,
+  }
 })

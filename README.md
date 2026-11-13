@@ -1,8 +1,10 @@
 # 奥瑞尔经销商城用户端
 
-uni-app（Vue 3 + TypeScript）用户端骨架。当前只搭页面、路由和请求壳，业务规则后续再补。
+uni-app（Vue 3 + TypeScript）用户端。正式交付是微信小程序。H5 只作为开发预览：保留预览口令闸和宽屏手机框，不提供微信网页授权，也不发公众号模板消息。
 
-第一目标是本地 H5。微信小程序相关能力（`wx.login`、手机号按钮、`wx.requestPayment`）只放在 `#ifdef MP-WEIXIN` 占位里，不代表登录或支付方案已经确定。
+小程序登录调用 `wx.login`，把 `code` 交给 `POST /api/v1/auth/mini/login`，之后的用户接口带 `Authorization: Bearer`。手机号不是账号唯一键；已有的手机号按钮可以再调 `POST /api/v1/auth/mini/phone`，登录不依赖它。H5 在通过预览闸之后调用 `POST /api/v1/auth/preview/login` 申请测试会话，设置页可以切换会员 / 非会员测试身份。停用账号会看到接口返回的错误，并且保持未登录。
+
+本阶段已接通实名认证（设置里的姓名、身份证号、手机号）、收货地址，以及创业专区 / 会员商城的商品列表和详情。不下单、不支付、不做钱包转账或提现。`wx.requestPayment` 仍是占位。
 
 ## 技术栈
 
@@ -76,7 +78,7 @@ https://api.example.com/api/v1
 
 1. **环境变量（命令行，以及会读取 Vite env 的 HBuilder X 运行）**  
    复制 `.env.example` 为项目根目录的 `.env`，修改 `VITE_API_BASE_URL`。`.env` 已在 `.gitignore` 中，不要提交。  
-   若配置了 `VITE_DEMO_LOGIN_PASSWORD_SHA256`（密码的 SHA-256 小写十六进制），H5 会先要求用户名 `root` 通过预览闸。不配置则不拦截，源码里也不写明文密码。
+   若配置了 `VITE_DEMO_LOGIN_PASSWORD_SHA256`（密码的 SHA-256 小写十六进制），H5 会先要求用户名 `root` 通过预览闸。不配置则不拦截，源码里也不写明文密码。通过闸门之后才会申请预览测试会话。
 2. **小配置文件（HBuilder X 没注入环境变量时用这个）**  
    直接改 `src/config/api.ts` 里的 `FALLBACK_API_BASE_URL`。解析顺序是：环境变量有值就用环境变量，否则用这个常量。
 
