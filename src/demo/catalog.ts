@@ -1,5 +1,4 @@
 import type { ArticleBrief, BannerSlide, NoticeItem } from '@/types/home'
-import type { MarketBrief } from '@/types/team'
 
 export interface CatalogProduct {
   id: string
@@ -229,12 +228,6 @@ export const homeArticles: ArticleBrief[] = [
       '奥瑞尔希望科技与健康彼此配合，而不是互相取代。本文为生活参考，不构成医疗建议。',
     ],
   },
-]
-
-export const placeholderMarkets: MarketBrief[] = [
-  { id: 'mc1', name: 'Eva Hoffmann', monthAmount: '12800.00', weekAmount: '4200.00', dayAmount: '800.00' },
-  { id: 'mc2', name: 'Jonas Meyer', monthAmount: '6450.50', weekAmount: '2100.00', dayAmount: '350.00' },
-  { id: 'mc3', name: 'Claire Dubois', monthAmount: '3200.00', weekAmount: '1500.00', dayAmount: '200.00' },
 ]
 
 export interface DemoOrder {
