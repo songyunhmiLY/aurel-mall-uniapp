@@ -7,6 +7,11 @@ import { refreshSignedInUser } from '@/auth/preview-entry'
 import { yuanFen } from '@/demo/format'
 import { payRule } from '@/orders/labels'
 import { isMpWeixin, requestWechatPayment } from '@/platform/mp-weixin'
+import {
+  paymentSubscribeEvents,
+  prepareSubscribeTemplates,
+  requestSubscribeFor,
+} from '@/platform/subscribe-message'
 import { useWalletStore } from '@/stores/wallet'
 import type { OrderView, WechatPrepay } from '@/types/order'
 
@@ -14,6 +19,7 @@ const props = defineProps<{ order: OrderView }>()
 const emit = defineEmits<{ changed: [order: OrderView] }>()
 
 const wallets = useWalletStore()
+prepareSubscribeTemplates()
 const pending = ref(false)
 const errorText = ref('')
 const wechat = ref<WechatPrepay | null>(null)
@@ -44,9 +50,15 @@ async function onPay() {
   notice.value = ''
   try {
     const result = await payOrder(props.order.id)
+    // 账户已经付清，没有微信支付成功回调。授权失败不改变这笔已支付订单。
+    const subscribe =
+      !result.wechat && result.order.status === 'paid'
+        ? requestSubscribeFor(paymentSubscribeEvents(result.order.zone))
+        : null
     await publish(result.order)
     wechat.value = result.wechat
-    if (!result.wechat && result.order.status === 'paid') {
+    if (subscribe) {
+      await subscribe
       notice.value = '账户已覆盖应付，订单已支付。'
       return
     }
@@ -76,13 +88,18 @@ async function payLive(payload: WechatPrepay) {
     return
   }
   try {
-    await requestWechatPayment({
-      timeStamp: payload.timeStamp,
-      nonceStr: payload.nonceStr,
-      prepayPackage: payload.package,
-      signType: payload.signType,
-      paySign: payload.paySign,
-    })
+    await requestWechatPayment(
+      {
+        timeStamp: payload.timeStamp,
+        nonceStr: payload.nonceStr,
+        prepayPackage: payload.package,
+        signType: payload.signType,
+        paySign: payload.paySign,
+      },
+      () => {
+        void requestSubscribeFor(paymentSubscribeEvents(props.order.zone))
+      },
+    )
     notice.value = '已调起微信支付。到账前订单仍是待付款，可以稍后刷新。'
     await publish(await fetchOrder(props.order.id))
   } catch (error) {
@@ -95,16 +112,22 @@ async function onSandbox(kind: 'succeed' | 'fail') {
   if (!payNo || pending.value) return
   pending.value = true
   errorText.value = ''
+  const subscribe =
+    kind === 'succeed'
+      ? requestSubscribeFor(paymentSubscribeEvents(props.order.zone))
+      : Promise.resolve()
   try {
     const result = kind === 'succeed' ? await sandboxSucceed(payNo) : await sandboxFail(payNo)
     const next = await fetchOrder(result.orderId || props.order.id)
     wechat.value = null
     await publish(next)
+    await subscribe
     notice.value =
       next.status === 'paid'
         ? '模拟支付成功，订单已支付。'
         : '模拟支付未完成，订单仍待付款，可以再次支付。'
   } catch (error) {
+    await subscribe
     errorText.value = apiErrorMessage(error, '模拟支付未完成')
   } finally {
     pending.value = false
