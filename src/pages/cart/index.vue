@@ -6,7 +6,7 @@ import LockPanel from '@/components/common/LockPanel.vue'
 import QtyStepper from '@/components/common/QtyStepper.vue'
 import ProductArt from '@/components/visual/ProductArt.vue'
 import { money, yuan } from '@/demo/format'
-import { openPage, routes } from '@/navigation/routes'
+import { openPage, routes, withQuery } from '@/navigation/routes'
 import { useCartStore } from '@/stores/cart'
 import { usePreviewStore } from '@/stores/preview'
 
@@ -23,7 +23,7 @@ onShow(() => {
 
 function checkout() {
   if (!cart.selected.length) return
-  uni.showToast({ title: '支付尚未接入', icon: 'none' })
+  openPage(withQuery(routes.checkout, { zone: 'mall', source: 'cart' }))
 }
 </script>
 
@@ -43,7 +43,11 @@ function checkout() {
     </view>
     <view v-else class="prod-list">
       <view v-for="item in cart.items" :key="item.id" class="prod-row">
-        <view class="hit" style="display: flex; align-items: center; padding-top: 22px" @click="cart.toggle(item.id)">
+        <view
+          class="hit"
+          style="display: flex; align-items: center; padding-top: 22px"
+          @click="cart.toggle(item.id)"
+        >
           <view class="check" :class="{ 'is-on': item.checked !== false }" />
         </view>
         <ProductArt :tone="item.tone" size="md" />
@@ -59,11 +63,16 @@ function checkout() {
           </view>
         </view>
       </view>
+      <text class="hint" style="display: block; padding: 0 16px 12px"
+        >运费在确认订单时按商品运费另加。</text
+      >
     </view>
     <template v-if="preview.isMember && cart.items.length" #footer>
       <view class="bottom-bar">
         <view class="bb-price">
-          <view class="lab">已选 {{ cart.selected.length }} 件 · 合计 PV {{ money(cart.selectedPv) }}</view>
+          <view class="lab"
+            >已选 {{ cart.selected.length }} 件 · 合计 PV {{ money(cart.selectedPv) }}</view
+          >
           <view class="num">{{ yuan(cart.selectedAmount) }}</view>
         </view>
         <view class="btn btn-primary hit" @click="checkout">去结算</view>

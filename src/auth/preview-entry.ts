@@ -1,7 +1,12 @@
-import { postPreviewLogin, PREVIEW_SUBJECT_MEMBER, type PreviewSubject } from '@/api/auth'
-import { isAccountBlockedError } from '@/api/http'
+import {
+  postMiniLogin,
+  postPreviewLogin,
+  PREVIEW_SUBJECT_MEMBER,
+  type PreviewSubject,
+} from '@/api/auth'
+import { ApiError, apiErrorMessage, isAccountBlockedError } from '@/api/http'
 import { getToken } from '@/auth/session'
-import { isMpWeixin } from '@/platform/mp-weixin'
+import { isMpWeixin, requestWechatLoginCode } from '@/platform/mp-weixin'
 import { usePreviewStore } from '@/stores/preview'
 import { acceptSession, noteAuthFailure } from './account-session'
 
@@ -18,32 +23,55 @@ export function writePreviewSubject(subject: PreviewSubject): void {
 }
 
 /**
- * 预览闸通过之后，用已保存的 subject 申请测试会话。
+ * 预览闸通过之后，用已保存的 subject 申请或刷新测试会话。
  * 小程序不走这里。ALLOW_PREVIEW_AUTH 关闭时展示接口里的「已忽略」。
+ * 已有令牌时也会再登录一次，用来拿到最新的 member 和 inviteCode。
  */
 export function ensurePreviewSession(): Promise<void> {
   if (isMpWeixin) return Promise.resolve()
-  if (getToken()) return Promise.resolve()
-  const preview = usePreviewStore()
-  if (preview.role === 'guest') return Promise.resolve()
+  if (!getToken() && usePreviewStore().role === 'guest') return Promise.resolve()
   if (inflight) return inflight
-  const subject = readPreviewSubject()
-  preview.setEntering(true)
-  inflight = run(subject).finally(() => {
+  usePreviewStore().setEntering(true)
+  inflight = refreshSignedInUser().finally(() => {
     inflight = null
     usePreviewStore().setEntering(false)
   })
   return inflight
 }
 
-async function run(subject: PreviewSubject): Promise<void> {
-  try {
-    const session = await postPreviewLogin({ subject })
-    acceptSession(session)
-  } catch (error) {
-    const message = noteAuthFailure(error, '预览会话未建立')
-    uni.showToast({ title: message, icon: 'none' })
+/**
+ * 再用现有登录接口读取 user.inviteCode 和 user.member。
+ * 没有单独的个人资料接口。失败且仍持有令牌时保留会话。
+ */
+export async function refreshSignedInUser(options?: { quiet?: boolean }): Promise<void> {
+  if (isMpWeixin) {
+    if (!getToken()) return
+    try {
+      const code = await requestWechatLoginCode()
+      acceptSession(await postMiniLogin({ code }))
+    } catch (error) {
+      if (isAccountBlockedError(error)) noteAuthFailure(error, '账号已停用')
+    }
+    return
   }
+  if (!getToken() && usePreviewStore().role === 'guest') return
+  const hadToken = Boolean(getToken())
+  try {
+    acceptSession(await postPreviewLogin({ subject: readPreviewSubject() }))
+  } catch (error) {
+    if (!hadToken || isAccountBlockedError(error) || isPreviewIgnored(error)) {
+      const message = noteAuthFailure(error, '预览会话未建立')
+      if (!options?.quiet) uni.showToast({ title: message, icon: 'none' })
+      return
+    }
+    if (!options?.quiet) {
+      uni.showToast({ title: apiErrorMessage(error, '预览会话未刷新'), icon: 'none' })
+    }
+  }
+}
+
+function isPreviewIgnored(error: unknown): boolean {
+  return error instanceof ApiError && error.message.includes('已忽略')
 }
 
 /** 设置页和预览登录页按稳定 subject 切换。会员身份以接口返回的 member 为准。 */

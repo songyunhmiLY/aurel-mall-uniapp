@@ -1,26 +1,28 @@
-function drawPattern(ctx: CanvasRenderingContext2D, code: string, x: number, y: number, size: number) {
-  const cells = 21
-  const cell = size / cells
+import { isInviteCode } from './code'
+import { inviteQrText } from './entry'
+import { qrMatrix } from './qr-matrix'
+
+function drawQr(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, size: number) {
+  const matrix = qrMatrix(text)
   ctx.fillStyle = '#ffffff'
   ctx.fillRect(x, y, size, size)
+  if (!matrix) return
+  const quiet = 2
+  const cell = size / (matrix.size + quiet * 2)
   ctx.fillStyle = '#161A1F'
-  let hash = 2166136261
-  const seed = code || 'AUREL'
-  for (let row = 0; row < cells; row += 1) {
-    for (let col = 0; col < cells; col += 1) {
-      hash ^= seed.charCodeAt((row * cells + col) % seed.length)
-      hash = Math.imul(hash, 16777619)
-      const finder =
-        (col < 7 && row < 7) || (col > cells - 8 && row < 7) || (col < 7 && row > cells - 8)
-      const edge = col === 0 || row === 0 || col === 6 || row === 6 || (col >= 2 && col <= 4 && row >= 2 && row <= 4)
-      if ((finder && edge) || (!finder && (hash & 3) !== 0)) {
-        ctx.fillRect(x + col * cell, y + row * cell, cell, cell)
-      }
+  for (let row = 0; row < matrix.size; row += 1) {
+    for (let col = 0; col < matrix.size; col += 1) {
+      if (!matrix.dark(col, row)) continue
+      ctx.fillRect(x + (col + quiet) * cell, y + (row + quiet) * cell, cell, cell)
     }
   }
 }
 
 export function saveInvitePoster(name: string, code: string): void {
+  if (!isInviteCode(code)) {
+    uni.showToast({ title: '还没有邀请码', icon: 'none' })
+    return
+  }
   if (typeof document === 'undefined') {
     uni.showToast({ title: '请在浏览器中保存', icon: 'none' })
     return
@@ -79,7 +81,7 @@ export function saveInvitePoster(name: string, code: string): void {
   }
   ctx.closePath()
   ctx.fill()
-  drawPattern(ctx, code, 70, 700, 200)
+  drawQr(ctx, inviteQrText(code), 70, 700, 200)
   ctx.textAlign = 'left'
   ctx.fillStyle = '#E8EEEF'
   ctx.font = '400 26px sans-serif'

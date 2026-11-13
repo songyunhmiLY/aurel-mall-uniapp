@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onShow } from '@dcloudio/uni-app'
+import { onLoad, onShow } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import {
   postMiniLogin,
@@ -12,7 +12,9 @@ import { apiErrorMessage } from '@/api/http'
 import { acceptSession, noteAuthFailure } from '@/auth/account-session'
 import { switchPreviewSubject } from '@/auth/preview-entry'
 import AppFrame from '@/components/chrome/AppFrame.vue'
-import { openPage, resetTo, routes } from '@/navigation/routes'
+import { captureInviteCode, captureLaunchInviteCode } from '@/invite/code'
+import { openAfterLogin } from '@/invite/registration'
+import { openPage, routes } from '@/navigation/routes'
 import {
   isMpWeixin,
   readPhoneAuthCode,
@@ -24,6 +26,11 @@ import { useUserStore } from '@/stores/user'
 const user = useUserStore()
 const pending = ref(false)
 const errorText = ref('')
+
+onLoad((query) => {
+  captureInviteCode(query)
+  captureLaunchInviteCode()
+})
 
 onShow(() => {
   errorText.value = user.authError
@@ -38,7 +45,7 @@ async function onWechatLogin() {
     const session = await postMiniLogin({ code })
     acceptSession(session)
     uni.showToast({ title: '登录成功', icon: 'none' })
-    resetTo(routes.home)
+    openAfterLogin()
   } catch (error) {
     errorText.value = noteAuthFailure(error, '微信登录未完成')
   } finally {
@@ -70,7 +77,7 @@ async function enterPreview(subject: PreviewSubject) {
   errorText.value = ''
   try {
     await switchPreviewSubject(subject)
-    resetTo(routes.home)
+    openAfterLogin()
   } catch (error) {
     errorText.value = apiErrorMessage(error, '预览会话未建立')
   } finally {
@@ -97,8 +104,8 @@ async function enterPreview(subject: PreviewSubject) {
         绑定手机号
       </button>
       <view class="auth-switch">
-        还没有账号？
-        <text class="auth-link hit" @click="openPage(routes.register)">立即注册</text>
+        登录之后再
+        <text class="auth-link hit" @click="openPage(routes.register)">填写邀请码</text>
       </view>
     </view>
     <view v-else class="auth-page">
@@ -114,6 +121,10 @@ async function enterPreview(subject: PreviewSubject) {
         @click="enterPreview(PREVIEW_SUBJECT_NONMEMBER)"
         >preview-nonmember</view
       >
+      <view class="auth-switch">
+        登录之后再
+        <text class="auth-link hit" @click="openPage(routes.register)">填写邀请码</text>
+      </view>
     </view>
   </AppFrame>
 </template>

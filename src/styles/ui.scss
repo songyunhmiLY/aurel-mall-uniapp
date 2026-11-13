@@ -1050,6 +1050,16 @@ textarea {
   margin-top: 6px;
 }
 
+.wa-meta {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: #c5bfb6;
+}
+
 /* 我的 */
 .mine-head {
   background: var(--ink);
@@ -1761,6 +1771,28 @@ textarea {
   background: var(--line-d);
   border-radius: 2px;
   margin: 4px auto 16px;
+}
+
+.status-filters {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 16px 0;
+}
+
+.pay-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.addr-pick {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .order-card {

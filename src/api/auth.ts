@@ -4,8 +4,12 @@ import { asRecord, readString } from './record'
 export interface AuthUser {
   id: string
   nickname: string
+  avatarUrl: string
+  phone: string
+  /** 登录 data.user.inviteCode。未入座时为 null，入座后是 6 位数字，不会是根账户的 000000。 */
+  inviteCode: string | null
   status: string
-  /** 来自登录 data.user.member。有市场树席位才是 true。 */
+  /** 来自登录 data.user.member。 */
   member: boolean
 }
 
@@ -64,8 +68,18 @@ export function readAuthSession(data: unknown): AuthSession {
     user: {
       id: readString(userRecord.id),
       nickname: readString(userRecord.nickname),
+      avatarUrl: readString(userRecord.avatarUrl),
+      phone: readString(userRecord.phone),
+      inviteCode: readInviteCode(userRecord.inviteCode),
       status,
       member: userRecord.member,
     },
   }
+}
+
+function readInviteCode(value: unknown): string | null {
+  if (value === null || value === undefined) return null
+  if (typeof value !== 'string') return null
+  const text = value.trim()
+  return text.length ? text : null
 }

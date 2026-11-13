@@ -22,6 +22,7 @@ export const routes = {
   payPassword: '/pages/settings/pay-password',
   productList: '/pages/product/list',
   productDetail: '/pages/product/detail',
+  checkout: '/pages/order/checkout',
   orderList: '/pages/order/list',
   orderDetail: '/pages/order/detail',
   articleDetail: '/pages/article/detail',
