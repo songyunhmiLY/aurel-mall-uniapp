@@ -10,11 +10,16 @@ uni-app（Vue 3 + TypeScript）用户端。正式交付是微信小程序。H5 �
 - 地址：`GET` / `POST /api/v1/me/addresses`，`PUT` / `DELETE /api/v1/me/addresses/:id`。写入 `contactName`、`contactPhone`、`province`、`city`、`district`、`detail`、`isDefault`。设为默认是 `POST /api/v1/me/addresses/:id/default`。
 - 商品：登录后 `GET /api/v1/catalog/products?zone=startup|mall` 和 `GET /api/v1/catalog/products/:id`。使用 `priceFen`、`pvFen`、`freightFen`、`stockQuantity`、`subtitle`、`coverUrl`、`category`。金额是分，商城 `pvFen` 的 100 等于 1 PV，不是售价。非会员看会员商城得到 403「非会员不能浏览会员商城」；创业专区仍可浏览。未上架或不存在是 404。
 - 邀请码：登录不传 `inviteCode`。登录后单独 `POST /api/v1/me/inviter`，body `{ "inviteCode": "000000" }`。成功 `data` 为 `{ inviteCode, inviterId }`。不会自动绑定根账户。没有邀请关系时，创业专区下单返回 400「缺少邀请关系」。会员的邀请二维码只编码本人的 6 位邀请码；非会员没有可分享的邀请码。H5 扫码地址带 `?inviteCode=`，小程序读页面查询或 `scene`。注册必须等这次绑定成功才算完成。
-- 钱包：`GET /api/v1/me/wallets`。`points`、`withdrawable`、`consumption` 各自有 `balanceFen`、`frozenFen`、`availableFen`，都是十进制字符串。
+- 钱包：`GET /api/v1/me/wallets`。`points`、`withdrawable`、`consumption` 各自有 `balanceFen`、`frozenFen`、`availableFen`，都是十进制字符串。流水是 `GET /api/v1/me/wallets/:walletType/ledger`。可提现分类是 `GET /api/v1/me/wallets/withdrawable/categories`，分类流水再加 `?displayName=`。分类名称用接口返回的 `displayName`，相同名称合成一项。三个账户之间不能互转。
+- 支付密码：`GET /api/v1/me/payment-password` 返回 `{ set }`。`POST /api/v1/me/payment-password` 的 body 是 `{ password }`，只负责首次设置，格式是 6 到 64 位且不含空格。只在确认消费划转时使用。
+- 消费划转：双方都必须已是会员。`POST /api/v1/me/transfers/lookup` 的 body 是 `{ payeeId }`，返回 `{ payeeId, nickname }`。确认后再 `POST /api/v1/me/transfers`，body 是 `{ payeeId, amountFen, paymentPassword }`。`amountFen` 是正整数分的十进制字符串。不收手续费，也不另设每日限额。
+- 收款账户：`GET` / `PUT /api/v1/me/bank-account`，字段是 `accountName`、`bankName`、`accountNo`、`branchName`。未设置时 `data` 为 `null`。
+- 提现：会员且已实名才能申请。`POST /api/v1/me/withdrawals` 的 body 是 `{ amountFen }`，最低 10000 分。列表和详情是 `GET /api/v1/me/withdrawals` 与 `GET /api/v1/me/withdrawals/:id`。状态是 `pending`、`rejected`、`paid`。打款结果在 `settlement`，未处理时为 `null`。手续费在打款时才确定，申请页不展示锁定手续费。系统不自动打款。
 - 订单：`POST /api/v1/orders`，body `{ zone, addressId, items: [{ productId, quantity }] }`。列表 `GET /api/v1/orders?page=&pageSize=`，详情 `GET /api/v1/orders/:id`。金额字段是 JSON 数字，单位是分。状态是 `pending_payment`、`paid`、`shipped`、`closed`。
 - 支付：`POST /api/v1/orders/:id/pay`。来源顺序由服务端固定。账户够付时 `wechat` 为 `null` 且订单为 `paid`；否则 `wechat.amountFen` 是微信部分。H5 预览在商户证书未配置时用 `POST /api/v1/payments/wechat/sandbox/succeed|fail`，body `{ payNo }`。不实现微信网页授权。`POST /api/v1/orders/:id/cancel` 与 `POST /api/v1/orders/:id/timeout` 只用于仍待支付的订单，本阶段不自动关单。
+- 商城退款：只有会员商城里已支付或已发货的订单可以 `POST /api/v1/orders/:id/refunds`。创业专区不提供退款。列表和详情是 `GET /api/v1/me/refunds` 与 `GET /api/v1/me/refunds/:id`。申请时展示 `deductionHint`，不把运费自动算进减扣。审核后的金额字段以接口返回为准。已发放的奖励不在用户端回滚或展示。
 
-不做商城退款、提现、转账、报单或奖励结算。当前用户自己的邀请码只读登录响应里的 `user.inviteCode`。
+不做报单或奖励结算。当前用户自己的邀请码只读登录响应里的 `user.inviteCode`。会员编号是登录响应里的 `user.id`，用于消费划转。
 
 ## 技术栈
 
@@ -126,11 +131,13 @@ H5 资讯详情对应常见的 `#/article/:id`，在 uni-app 里是：
 
 首页有轮播图、滚动字幕、资讯知识，以及创业专区、福利专场、联合创始人入口。问候语不展示职位。
 
-「我的」里有订单状态、会员码、邀请好友海报和创业团队。设置是头像旁的齿轮。收款账户、收货地址、用户协议、隐私政策、支付密码都在设置下面。
+「我的」里有订单状态、会员码、邀请好友海报和创业团队。会员可以复制自己的会员编号。设置是头像旁的齿轮。收款账户、收货地址、用户协议、隐私政策、支付密码都在设置下面。
+
+钱包可以查看三个账户、流水和可提现分类。会员可以划转消费账户、申请提现。会员商城订单可以申请退款。创业专区订单不能退款。进入页面、回到前台，以及划转、提现、退款成功后刷新余额，不轮询。
 
 创业团队页展示「我的市场」（单位是「个」）、「总业绩」（只表示本月合计）和「市场情况」（最多 3 个市场，每项含本月 / 最近7天 / 当日）。没有数据时显示「暂无市场」。
 
-用户能看见的文案不要出现「市场树」「节点」，也不要出现「本月职位」「我的职位」「幸运返还」「奖励明细」。
+用户能看见的文案不要出现「市场树」「节点」，也不要出现「本月职位」「我的职位」「奖励明细」。可提现分类只展示接口返回的名称。
 
 ## 配套仓库
 

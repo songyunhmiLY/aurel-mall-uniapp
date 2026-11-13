@@ -101,12 +101,40 @@
       "style": { "navigationBarTitleText": "订单详情", "navigationStyle": "custom" }
     },
     {
+      "path": "pages/order/refunds",
+      "style": { "navigationBarTitleText": "退款记录", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/order/refund",
+      "style": { "navigationBarTitleText": "退款详情", "navigationStyle": "custom" }
+    },
+    {
       "path": "pages/article/detail",
       "style": { "navigationBarTitleText": "资讯详情", "navigationStyle": "custom" }
     },
     {
+      "path": "pages/wallet/ledger",
+      "style": { "navigationBarTitleText": "流水", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/wallet/categories",
+      "style": { "navigationBarTitleText": "可提现分类", "navigationStyle": "custom" }
+    },
+    {
       "path": "pages/wallet/transfer",
-      "style": { "navigationBarTitleText": "消费转账", "navigationStyle": "custom" }
+      "style": { "navigationBarTitleText": "消费划转", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/wallet/withdraw",
+      "style": { "navigationBarTitleText": "申请提现", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/wallet/withdrawals",
+      "style": { "navigationBarTitleText": "提现记录", "navigationStyle": "custom" }
+    },
+    {
+      "path": "pages/wallet/withdrawal",
+      "style": { "navigationBarTitleText": "提现详情", "navigationStyle": "custom" }
     },
     {
       "path": "pages/service/index",
