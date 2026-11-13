@@ -78,11 +78,11 @@ export interface PayOrderResult {
   wechat: WechatPrepay | null
 }
 
-/** POST /payments/wechat/sandbox/succeed|fail 的 data。 */
+/** POST /payments/wechat/sandbox/succeed|fail 的 data。联合创始人开通的 orderId 为 null。 */
 export interface WechatSandboxResult {
   payNo: string
   status: string
-  orderId: string
+  orderId: string | null
   amountFen: number
   orderStatus: string | null
   succeededAt: string | null

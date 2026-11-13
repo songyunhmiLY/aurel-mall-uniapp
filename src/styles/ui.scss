@@ -1730,16 +1730,25 @@ textarea {
 }
 
 .cf-body .cf-title {
+  display: block;
   font-size: 22px;
   font-weight: 600;
   letter-spacing: 0.06em;
 }
 
 .cf-lead {
+  display: block;
   color: var(--muted);
   font-size: 13px;
   line-height: 1.75;
   margin-top: 10px;
+  white-space: pre-wrap;
+}
+
+.cf-photo {
+  display: block;
+  width: 100%;
+  background: var(--ink);
 }
 
 .kv {

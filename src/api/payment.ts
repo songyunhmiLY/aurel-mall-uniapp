@@ -26,8 +26,8 @@ export function readSandboxResult(data: unknown): WechatSandboxResult {
   if (!record) throw new ApiError('支付响应无效')
   const payNo = readString(record.payNo)
   const status = readString(record.status)
-  const orderId = readString(record.orderId)
-  if (!payNo || !status || !orderId) throw new ApiError('支付响应无效')
+  const orderId = readSandboxOrderId(record.orderId)
+  if (!payNo || !status) throw new ApiError('支付响应无效')
   if (typeof record.amountFen !== 'number' || !Number.isInteger(record.amountFen)) {
     throw new ApiError('支付响应无效')
   }
@@ -43,4 +43,12 @@ export function readSandboxResult(data: unknown): WechatSandboxResult {
     orderStatus,
     succeededAt,
   }
+}
+
+/** 订单支付带回订单号。联合创始人开通没有订单，orderId 为 null。 */
+function readSandboxOrderId(value: unknown): string | null {
+  if (value === null) return null
+  const text = readString(value)
+  if (!text) throw new ApiError('支付响应无效')
+  return text
 }

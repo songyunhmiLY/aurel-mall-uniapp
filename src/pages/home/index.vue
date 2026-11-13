@@ -3,6 +3,7 @@ import { onLoad, onShow } from '@dcloudio/uni-app'
 import { computed, ref, watch } from 'vue'
 import { fetchHomeFeed } from '@/api/home'
 import { walletAccount } from '@/api/wallet'
+import { fetchCofounderPage } from '@/api/cofounder'
 import { fetchWelfareEntry } from '@/api/welfare'
 import AppFrame from '@/components/chrome/AppFrame.vue'
 import HomeBanner from '@/components/home/HomeBanner.vue'
@@ -16,6 +17,7 @@ import { usePreviewStore } from '@/stores/preview'
 import { useUserStore } from '@/stores/user'
 import { useWalletStore } from '@/stores/wallet'
 import type { ArticleBrief, BannerSlide, NoticeItem } from '@/types/home'
+import type { CofounderEntry } from '@/types/cofounder'
 import type { WelfareEntry } from '@/types/welfare'
 
 const preview = usePreviewStore()
@@ -25,6 +27,7 @@ const banners = ref<BannerSlide[]>(homeBanners)
 const notices = ref<NoticeItem[]>(homeTicker)
 const articles = ref<ArticleBrief[]>(homeArticles)
 const welfareEntry = ref<WelfareEntry | null>(null)
+const cofounderEntry = ref<CofounderEntry | null>(null)
 const hello = computed(() => greetingName(user.nickname || preview.profile.name || '朋友'))
 
 function availableText(key: 'points' | 'withdrawable' | 'consumption'): string {
@@ -47,11 +50,20 @@ function refreshSignedIn() {
   if (!user.token) return
   void wallets.load()
   void loadWelfareEntry()
+  void loadCofounderEntry()
 }
 
 async function loadWelfareEntry() {
   try {
     welfareEntry.value = await fetchWelfareEntry()
+  } catch {
+    // 读取失败时保留上一次的入口。还没有读到过时，卡片不展示配置文案和图片。
+  }
+}
+
+async function loadCofounderEntry() {
+  try {
+    cofounderEntry.value = (await fetchCofounderPage()).entry
   } catch {
     // 读取失败时保留上一次的入口。还没有读到过时，卡片不展示配置文案和图片。
   }
@@ -97,7 +109,7 @@ watch(
     </view>
     <HomeBanner :items="banners" />
     <HomeMarquee :items="notices" />
-    <ZoneEntries :welfare-entry="welfareEntry" />
+    <ZoneEntries :welfare-entry="welfareEntry" :cofounder-entry="cofounderEntry" />
     <KnowledgeList :items="articles" />
   </AppFrame>
 </template>
