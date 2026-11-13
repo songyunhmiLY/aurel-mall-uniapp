@@ -2,6 +2,7 @@ import {
   postMiniLogin,
   postPreviewLogin,
   PREVIEW_SUBJECT_MEMBER,
+  PREVIEW_SUBJECT_PATTERN,
   type PreviewSubject,
 } from '@/api/auth'
 import { ApiError, apiErrorMessage, isAccountBlockedError } from '@/api/http'
@@ -13,9 +14,11 @@ import { acceptSession, noteAuthFailure } from './account-session'
 const SUBJECT_KEY = 'aurel_preview_subject'
 let inflight: Promise<void> | null = null
 
+/** 上次成功使用的预览 subject。格式不对时回到 preview-member。 */
 export function readPreviewSubject(): PreviewSubject {
   const value = uni.getStorageSync(SUBJECT_KEY)
-  return value === 'preview-nonmember' ? 'preview-nonmember' : PREVIEW_SUBJECT_MEMBER
+  if (typeof value === 'string' && PREVIEW_SUBJECT_PATTERN.test(value)) return value
+  return PREVIEW_SUBJECT_MEMBER
 }
 
 export function writePreviewSubject(subject: PreviewSubject): void {
@@ -74,14 +77,15 @@ function isPreviewIgnored(error: unknown): boolean {
   return error instanceof ApiError && error.message.includes('已忽略')
 }
 
-/** 设置页和预览登录页按稳定 subject 切换。会员身份以接口返回的 member 为准。 */
+/** 设置页和预览登录页按 subject 切换。会员身份以接口返回的 member 为准。 */
 export async function switchPreviewSubject(subject: PreviewSubject): Promise<void> {
   if (isMpWeixin) return
+  const identifier = subject.trim()
   const preview = usePreviewStore()
   preview.setEntering(true)
   try {
-    const session = await postPreviewLogin({ subject })
-    writePreviewSubject(subject)
+    const session = await postPreviewLogin({ subject: identifier })
+    writePreviewSubject(identifier)
     acceptSession(session)
   } catch (error) {
     if (isAccountBlockedError(error) || !getToken()) {
