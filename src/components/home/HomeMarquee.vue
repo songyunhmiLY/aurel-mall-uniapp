@@ -1,19 +1,18 @@
 <script setup lang="ts">
-import type { NoticeItem } from '@/types/home'
+import type { HomeTicker } from '@/types/home'
 
-defineProps<{ items: NoticeItem[] }>()
+defineProps<{ items: HomeTicker[] }>()
 </script>
 
 <template>
-  <view v-if="items.length" class="home-ticker" aria-label="滚动公告">
-    <text class="ht-lab">公告</text>
+  <view v-if="items.length" class="home-ticker" aria-label="滚动字幕">
     <view class="ht-mask">
       <view class="ht-track">
         <view class="ht-seq">
-          <text v-for="item in items" :key="item.id">{{ item.text }}</text>
+          <text v-for="item in items" :key="item.id">{{ item.content }}</text>
         </view>
-        <view class="ht-seq">
-          <text v-for="item in items" :key="`${item.id}-copy`">{{ item.text }}</text>
+        <view class="ht-seq" aria-hidden="true">
+          <text v-for="item in items" :key="`${item.id}-copy`">{{ item.content }}</text>
         </view>
       </view>
     </view>

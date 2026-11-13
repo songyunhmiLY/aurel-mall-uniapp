@@ -1,5 +1,3 @@
-import type { ArticleBrief, BannerSlide, NoticeItem } from '@/types/home'
-
 export interface CatalogProduct {
   id: string
   name: string
@@ -133,103 +131,6 @@ export const mallProducts: CatalogProduct[] = [
   },
 ]
 
-export const homeBanners: BannerSlide[] = [
-  {
-    id: 'b1',
-    href: 'startup',
-    kicker: '成为会员',
-    title: '创业专区',
-    desc: '高新科技研发的创新型药物，固定单价。',
-    tone: 'olive',
-  },
-  {
-    id: 'b2',
-    href: 'mall',
-    kicker: '会员精选',
-    title: '会员商城',
-    desc: '健康向的高科技养生产品。',
-    tone: 'slate',
-  },
-  {
-    id: 'b3',
-    href: 'founder',
-    kicker: '名额招募',
-    title: '联合创始人',
-    desc: '了解联合创始人。',
-    tone: 'navy',
-  },
-  {
-    id: 'b4',
-    href: 'article:k2',
-    kicker: '知识',
-    title: '秋冬节律小记',
-    desc: '关于作息、节律与日常养护的小建议。',
-    tone: 'linen',
-  },
-]
-
-export const homeTicker: NoticeItem[] = [
-  { id: 't1', text: '系统将于 11 月 16 日 02:00–04:00 进行例行维护，期间部分服务可能短暂不可用。' },
-  { id: 't2', text: '创业专区新品已上架，欢迎前往查看。' },
-  { id: 't3', text: '福利专场可从首页进入。' },
-  { id: 't4', text: '会员商城单笔满 399.00 元免运费。' },
-]
-
-export const homeArticles: ArticleBrief[] = [
-  {
-    id: 'k1',
-    type: 'notice',
-    typeName: '通知',
-    title: '系统维护通知',
-    date: '2026-11-12',
-    summary: '本周日凌晨将进行例行维护，期间部分服务可能短暂不可用。',
-    body: [
-      '为提升系统稳定性，平台定于 2026 年 11 月 16 日 02:00 至 04:00（北京时间）进行例行维护。',
-      '维护期间，浏览、下单与账户相关功能可能短暂不可用。请提前安排操作，由此带来的不便敬请谅解。',
-      '维护完成后服务将自动恢复，无需重新安装。',
-    ],
-  },
-  {
-    id: 'k2',
-    type: 'article',
-    typeName: '文章',
-    title: '秋冬节律小记',
-    date: '2026-11-10',
-    summary: '关于作息、节律与日常养护的几点建议。',
-    body: [
-      '进入秋冬，日照变短，许多人的作息会随之变化。保持相对稳定的起居时间，有助于身体适应季节节律。',
-      '白天尽量接触自然光，傍晚逐步降低屏幕亮度，有助于入睡更安稳。室内注意适度通风与保暖，外出时根据气温增减衣物。',
-      '日常养护重在规律：均衡饮食、适量活动、充足水分，都是可以长期坚持的小事。本文仅作生活参考，不构成任何医疗建议。',
-    ],
-  },
-  {
-    id: 'k3',
-    type: 'notice',
-    typeName: '通知',
-    title: '关于配送时效的说明',
-    date: '2026-11-08',
-    summary: '近期跨境配送可能较往常多 1 至 2 个工作日，请以物流信息为准。',
-    body: [
-      '受跨境运输安排影响，近期部分订单的配送时效可能较往常多 1 至 2 个工作日。',
-      '具体进度请以订单中的物流信息为准。如超时仍未更新，可通过「联系客服」查询。',
-      '感谢理解与等待。',
-    ],
-  },
-  {
-    id: 'k4',
-    type: 'article',
-    typeName: '文章',
-    title: '科技健康生活小记',
-    date: '2026-11-05',
-    summary: '用更克制的方式使用智能设备，把关注放回日常节奏。',
-    body: [
-      '科技可以提醒喝水、记录步数或辅助作息，但不必让通知占据整天。为常用应用设置免打扰时段，把屏幕时间留在真正需要的时候。',
-      '把设备放在稍远的位置充电，睡前留出一段不看屏幕的时间，往往比再添一件新工具更有效。',
-      '奥瑞尔希望科技与健康彼此配合，而不是互相取代。本文为生活参考，不构成医疗建议。',
-    ],
-  },
-]
-
 export interface DemoOrder {
   id: string
   typeName: string
@@ -351,8 +252,4 @@ export function findStartup(id: string): CatalogProduct | undefined {
 
 export function findMall(id: string): CatalogProduct | undefined {
   return mallProducts.find((item) => item.id === id)
-}
-
-export function findArticle(id: string): ArticleBrief | undefined {
-  return homeArticles.find((item) => item.id === id)
 }
