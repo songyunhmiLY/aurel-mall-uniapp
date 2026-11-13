@@ -6,7 +6,7 @@ import { ApiError } from '@/api/http'
 import { sessionErrorMessage } from '@/auth/account-session'
 import AppFrame from '@/components/chrome/AppFrame.vue'
 
-const name = ref('')
+const realName = ref('')
 const idNumber = ref('')
 const mobile = ref('')
 const verified = ref(false)
@@ -23,7 +23,7 @@ async function load() {
   try {
     const profile = await fetchKyc()
     verified.value = profile.verified
-    name.value = profile.name
+    realName.value = profile.realName
     idNumber.value = profile.idNumber
     mobile.value = profile.mobile
   } catch (error) {
@@ -39,11 +39,11 @@ async function load() {
 async function save() {
   if (pending.value || verified.value) return
   const body = {
-    name: name.value.trim(),
+    realName: realName.value.trim(),
     idNumber: idNumber.value.trim(),
     mobile: mobile.value.trim(),
   }
-  if (!body.name || !body.idNumber || !body.mobile) {
+  if (!body.realName || !body.idNumber || !body.mobile) {
     uni.showToast({ title: '请填写姓名、身份证号和手机号', icon: 'none' })
     return
   }
@@ -52,7 +52,7 @@ async function save() {
   try {
     const profile = await submitKyc(body)
     verified.value = profile.verified
-    name.value = profile.name || body.name
+    realName.value = profile.realName || body.realName
     idNumber.value = profile.idNumber || body.idNumber
     mobile.value = profile.mobile || body.mobile
     uni.showToast({ title: profile.verified ? '已完成实名认证' : '已提交', icon: 'none' })
@@ -74,7 +74,7 @@ async function save() {
         <view class="field">
           <text class="field__label">姓名</text>
           <input
-            v-model="name"
+            v-model="realName"
             class="field__input"
             :disabled="verified"
             maxlength="64"

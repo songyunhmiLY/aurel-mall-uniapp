@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
-import { apiErrorMessage, isMembershipError } from '@/api/http'
-import { fetchProduct } from '@/api/product'
+import { ApiError, apiErrorMessage, isMembershipError } from '@/api/http'
+import { fenToYuan, fetchProduct } from '@/api/product'
 import { sessionErrorMessage } from '@/auth/account-session'
 import AppFrame from '@/components/chrome/AppFrame.vue'
 import LockPanel from '@/components/common/LockPanel.vue'
@@ -22,7 +22,7 @@ const errorText = ref('')
 const membershipText = ref('')
 
 const isMall = computed(() => (product.value?.zone ?? zone.value) === 'mall')
-const amount = computed(() => (product.value ? product.value.price * qty.value : 0))
+const amount = computed(() => (product.value ? fenToYuan(product.value.priceFen) * qty.value : 0))
 
 onLoad((query) => {
   const id = typeof query?.id === 'string' ? query.id : ''
@@ -41,20 +41,20 @@ async function load(id: string) {
   } catch (error) {
     product.value = null
     if (zone.value === 'mall' && isMembershipError(error)) {
-      membershipText.value = apiErrorMessage(
-        error,
-        '会员商城仅对会员开放。请先在创业专区完成购买，成为会员后再来选购。',
-      )
+      membershipText.value = apiErrorMessage(error, '非会员不能浏览会员商城')
       return
     }
-    errorText.value = sessionErrorMessage(error, '商品加载失败')
+    errorText.value =
+      error instanceof ApiError && error.statusCode === 404
+        ? '商品不存在'
+        : sessionErrorMessage(error, '商品加载失败')
   } finally {
     loaded.value = true
   }
 }
 
-function pvText(pv: number | null): string {
-  return pv == null ? '—' : money(pv)
+function pvText(pvFen: number | null): string {
+  return pvFen == null ? '—' : money(fenToYuan(pvFen))
 }
 
 function change(delta: number) {
@@ -63,7 +63,15 @@ function change(delta: number) {
 
 function addCart() {
   if (!product.value) return
-  cart.add({ ...product.value, pv: product.value.pv ?? 0 }, qty.value)
+  cart.add(
+    {
+      id: product.value.id,
+      name: product.value.name,
+      price: fenToYuan(product.value.priceFen),
+      pv: product.value.pvFen == null ? 0 : fenToYuan(product.value.pvFen),
+    },
+    qty.value,
+  )
   uni.showToast({ title: '已加入购物车', icon: 'none' })
 }
 
@@ -101,14 +109,24 @@ function buyNow() {
         <ProductArt v-else tone="slate" size="hero" />
       </view>
       <view class="detail-body">
-        <text v-if="product.category" class="muted t-12">{{ product.category }}</text>
-        <text class="detail-name" :class="{ 'mt-8': product.category }">{{ product.name }}</text>
+        <text v-if="product.categoryName" class="muted t-12">{{ product.categoryName }}</text>
+        <text class="detail-name" :class="{ 'mt-8': product.categoryName }">{{
+          product.name
+        }}</text>
         <view class="price-pv mt-12">
-          <text class="price t-24"><text class="yen">¥</text>{{ money(product.price) }}</text>
-          <text v-if="isMall" class="pv-badge">PV {{ pvText(product.pv) }}</text>
+          <text class="price t-24"
+            ><text class="yen">¥</text>{{ money(fenToYuan(product.priceFen)) }}</text
+          >
+          <text v-if="isMall" class="pv-badge">PV {{ pvText(product.pvFen) }}</text>
         </view>
-        <text v-if="isMall" class="hint mt-8">价格与 PV 分别展示。PV 不是售价。</text>
+        <text v-if="isMall" class="hint mt-8"
+          >价格与 PV 分别展示。100 分 PV 等于 1 PV，不是售价。</text
+        >
         <text v-if="product.subtitle" class="detail-desc">{{ product.subtitle }}</text>
+        <text v-if="product.body" class="detail-desc">{{ product.body }}</text>
+        <text class="muted t-13 mt-8"
+          >运费 {{ yuan(fenToYuan(product.freightFen)) }} · 库存 {{ product.stockQuantity }}</text
+        >
         <view class="card card-pad mt-16 row-between">
           <text class="t-14">购买数量</text>
           <QtyStepper :qty="qty" @change="change" />

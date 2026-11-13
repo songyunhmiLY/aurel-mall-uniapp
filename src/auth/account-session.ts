@@ -1,16 +1,15 @@
-import type { AuthSession, PreviewPersona } from '@/api/auth'
+import type { AuthSession } from '@/api/auth'
 import { apiErrorMessage, isAccountBlockedError } from '@/api/http'
 import { usePreviewStore } from '@/stores/preview'
 import { useUserStore } from '@/stores/user'
 
-export function acceptSession(session: AuthSession, persona?: PreviewPersona): void {
+/** 会员标识只采用登录响应里的 user.member，不按预览 subject 推断。 */
+export function acceptSession(session: AuthSession): void {
   const user = useUserStore()
   const preview = usePreviewStore()
   user.applySession(session)
   if (session.user.nickname) preview.applyNickname(session.user.nickname)
-  if (session.user.member === true) preview.setRole('member')
-  else if (session.user.member === false) preview.setRole('nonmember')
-  else if (persona) preview.setRole(persona)
+  preview.setRole(session.user.member ? 'member' : 'nonmember')
 }
 
 export function clearAuthSession(): void {
@@ -18,7 +17,7 @@ export function clearAuthSession(): void {
   usePreviewStore().setRole('guest')
 }
 
-/** 登录失败或账号停用：清掉令牌，保留接口文案，页面保持未登录。 */
+/** 登录失败、停用或预览登录被忽略：清掉令牌，保留接口文案。 */
 export function noteAuthFailure(error: unknown, fallback: string): string {
   const message = apiErrorMessage(error, fallback)
   useUserStore().setAuthError(message)

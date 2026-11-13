@@ -2,7 +2,7 @@
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { apiErrorMessage, isMembershipError } from '@/api/http'
-import { fetchProducts } from '@/api/product'
+import { fenToYuan, fetchProducts } from '@/api/product'
 import { sessionErrorMessage } from '@/auth/account-session'
 import AppFrame from '@/components/chrome/AppFrame.vue'
 import LockPanel from '@/components/common/LockPanel.vue'
@@ -28,15 +28,11 @@ async function load() {
   errorText.value = ''
   membershipText.value = ''
   try {
-    const result = await fetchProducts(zone.value)
-    products.value = result.products
+    products.value = await fetchProducts(zone.value)
   } catch (error) {
     products.value = []
     if (zone.value === 'mall' && isMembershipError(error)) {
-      membershipText.value = apiErrorMessage(
-        error,
-        '会员商城仅对会员开放。请先在创业专区完成购买，成为会员后再来选购。',
-      )
+      membershipText.value = apiErrorMessage(error, '非会员不能浏览会员商城')
       return
     }
     errorText.value = sessionErrorMessage(error, '商品加载失败')
@@ -45,8 +41,8 @@ async function load() {
   }
 }
 
-function pvText(pv: number | null): string {
-  return pv == null ? '—' : money(pv)
+function pvText(pvFen: number | null): string {
+  return pvFen == null ? '—' : money(fenToYuan(pvFen))
 }
 
 function openDetail(id: string) {
@@ -81,8 +77,8 @@ function openDetail(id: string) {
           <text class="pr-name">{{ item.name }}</text>
           <text v-if="item.subtitle" class="pr-desc">{{ item.subtitle }}</text>
           <view class="price-pv mt-8">
-            <text class="price">¥{{ money(item.price) }}</text>
-            <text v-if="zone === 'mall'" class="pv-badge">PV {{ pvText(item.pv) }}</text>
+            <text class="price">¥{{ money(fenToYuan(item.priceFen)) }}</text>
+            <text v-if="zone === 'mall'" class="pv-badge">PV {{ pvText(item.pvFen) }}</text>
           </view>
         </view>
       </view>

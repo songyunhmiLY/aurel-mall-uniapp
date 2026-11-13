@@ -1,13 +1,7 @@
 <script setup lang="ts">
 import { onShow } from '@dcloudio/uni-app'
 import { ref } from 'vue'
-import {
-  deleteAddress,
-  fetchAddresses,
-  toAddressInput,
-  updateAddress,
-  type Address,
-} from '@/api/address'
+import { deleteAddress, fetchAddresses, setDefaultAddress, type Address } from '@/api/address'
 import { sessionErrorMessage } from '@/auth/account-session'
 import AppFrame from '@/components/chrome/AppFrame.vue'
 import { openPage, routes, withQuery } from '@/navigation/routes'
@@ -43,7 +37,7 @@ function edit(id = '') {
 async function makeDefault(item: Address) {
   if (item.isDefault) return
   try {
-    await updateAddress(item.id, toAddressInput(item, true))
+    await setDefaultAddress(item.id)
     await load()
   } catch (error) {
     uni.showToast({ title: sessionErrorMessage(error, '未能设为默认'), icon: 'none' })
@@ -75,7 +69,7 @@ function remove(item: Address) {
       </view>
       <view v-for="item in items" :key="item.id" class="card card-pad mb-12">
         <text class="fw-6"
-          >{{ item.contactName }} <text class="muted t-13">{{ item.phone }}</text></text
+          >{{ item.contactName }} <text class="muted t-13">{{ item.contactPhone }}</text></text
         >
         <text v-if="item.isDefault" class="tag tag-gold">默认</text>
         <text class="muted t-13 mt-8">{{ regionLine(item) }}</text>

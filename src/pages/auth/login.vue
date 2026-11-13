@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { onShow } from '@dcloudio/uni-app'
 import { ref } from 'vue'
-import { postMiniLogin, postMiniPhone, type PreviewPersona } from '@/api/auth'
+import {
+  postMiniLogin,
+  postMiniPhone,
+  PREVIEW_SUBJECT_MEMBER,
+  PREVIEW_SUBJECT_NONMEMBER,
+  type PreviewSubject,
+} from '@/api/auth'
 import { apiErrorMessage } from '@/api/http'
 import { acceptSession, noteAuthFailure } from '@/auth/account-session'
-import { switchPreviewPersona } from '@/auth/preview-entry'
+import { switchPreviewSubject } from '@/auth/preview-entry'
 import AppFrame from '@/components/chrome/AppFrame.vue'
 import { openPage, resetTo, routes } from '@/navigation/routes'
 import {
@@ -58,12 +64,12 @@ async function onGetPhoneNumber(event: PhoneAuthEvent) {
   }
 }
 
-async function enterPreview(persona: PreviewPersona) {
+async function enterPreview(subject: PreviewSubject) {
   if (pending.value) return
   pending.value = true
   errorText.value = ''
   try {
-    await switchPreviewPersona(persona)
+    await switchPreviewSubject(subject)
     resetTo(routes.home)
   } catch (error) {
     errorText.value = apiErrorMessage(error, '预览会话未建立')
@@ -100,9 +106,13 @@ async function enterPreview(persona: PreviewPersona) {
       <text class="auth-title">预览会话</text>
       <text class="auth-sub">这是 H5 开发预览，用来申请测试用户。不是微信登录。</text>
       <view v-if="errorText" class="notice">{{ errorText }}</view>
-      <view class="btn btn-gold btn-block hit" @click="enterPreview('member')">会员测试用户</view>
-      <view class="btn btn-ghost btn-block mt-12 hit" @click="enterPreview('nonmember')"
-        >非会员测试用户</view
+      <view class="btn btn-gold btn-block hit" @click="enterPreview(PREVIEW_SUBJECT_MEMBER)"
+        >preview-member</view
+      >
+      <view
+        class="btn btn-ghost btn-block mt-12 hit"
+        @click="enterPreview(PREVIEW_SUBJECT_NONMEMBER)"
+        >preview-nonmember</view
       >
     </view>
   </AppFrame>

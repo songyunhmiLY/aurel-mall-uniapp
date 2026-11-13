@@ -2,7 +2,7 @@
 import { onShow } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import { apiErrorMessage, isMembershipError } from '@/api/http'
-import { fetchProducts } from '@/api/product'
+import { fenToYuan, fetchProducts } from '@/api/product'
 import { sessionErrorMessage } from '@/auth/account-session'
 import AppFrame from '@/components/chrome/AppFrame.vue'
 import LockPanel from '@/components/common/LockPanel.vue'
@@ -18,13 +18,15 @@ const errorText = ref('')
 const membershipText = ref('')
 
 const categories = computed(() => {
-  const names = products.value.map((item) => item.category).filter(Boolean)
+  const names = products.value.map((item) => item.categoryName).filter(Boolean)
   const unique = [...new Set(names)]
   return unique.length ? ['全部', ...unique] : []
 })
 
 const visible = computed(() =>
-  products.value.filter((item) => category.value === '全部' || item.category === category.value),
+  products.value.filter(
+    (item) => category.value === '全部' || item.categoryName === category.value,
+  ),
 )
 
 onShow(() => {
@@ -35,16 +37,12 @@ async function load() {
   errorText.value = ''
   membershipText.value = ''
   try {
-    const result = await fetchProducts('mall')
-    products.value = result.products
+    products.value = await fetchProducts('mall')
     if (!categories.value.includes(category.value)) category.value = '全部'
   } catch (error) {
     products.value = []
     if (isMembershipError(error)) {
-      membershipText.value = apiErrorMessage(
-        error,
-        '会员商城仅对会员开放。请先在创业专区完成购买，成为会员后再来选购。',
-      )
+      membershipText.value = apiErrorMessage(error, '非会员不能浏览会员商城')
       return
     }
     errorText.value = sessionErrorMessage(error, '商品加载失败')
@@ -53,8 +51,8 @@ async function load() {
   }
 }
 
-function pvText(pv: number | null): string {
-  return pv == null ? '—' : money(pv)
+function pvText(pvFen: number | null): string {
+  return pvFen == null ? '—' : money(fenToYuan(pvFen))
 }
 
 function openDetail(id: string) {
@@ -102,8 +100,10 @@ function openDetail(id: string) {
           <view class="pt-body">
             <text class="pt-name">{{ item.name }}</text>
             <view class="price-pv mt-8">
-              <text class="price t-16"><text class="yen">¥</text>{{ money(item.price) }}</text>
-              <text class="pv-badge">PV {{ pvText(item.pv) }}</text>
+              <text class="price t-16"
+                ><text class="yen">¥</text>{{ money(fenToYuan(item.priceFen)) }}</text
+              >
+              <text class="pv-badge">PV {{ pvText(item.pvFen) }}</text>
             </view>
           </view>
         </view>

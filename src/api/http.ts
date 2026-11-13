@@ -75,14 +75,9 @@ export function isAccountBlockedError(error: unknown): boolean {
   return error instanceof ApiError && /停用|禁用/.test(error.message)
 }
 
-/**
- * 会员商城对非会员返回的错误。调用方只在商城请求上使用，
- * 创业专区不应因此被拦住。
- */
+/** 会员商城对非会员的 403。预览登录关闭时的「已忽略」不是这个错误。 */
 export function isMembershipError(error: unknown): boolean {
-  if (!(error instanceof ApiError) || isAccountBlockedError(error)) return false
-  if (/会员/.test(error.message)) return true
-  return error.statusCode === 403
+  return error instanceof ApiError && error.message.includes('非会员不能浏览会员商城')
 }
 
 function parseBody(data: unknown): unknown {

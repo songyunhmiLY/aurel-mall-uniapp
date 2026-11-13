@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { onShow } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
-import type { PreviewPersona } from '@/api/auth'
+import { PREVIEW_SUBJECT_MEMBER, PREVIEW_SUBJECT_NONMEMBER, type PreviewSubject } from '@/api/auth'
 import { fetchKyc } from '@/api/kyc'
 import { ApiError, apiErrorMessage, isAccountBlockedError } from '@/api/http'
 import { clearAuthSession, sessionErrorMessage } from '@/auth/account-session'
-import { switchPreviewPersona } from '@/auth/preview-entry'
+import { readPreviewSubject, switchPreviewSubject } from '@/auth/preview-entry'
 import AppFrame from '@/components/chrome/AppFrame.vue'
 import { openPage, resetTo, routes } from '@/navigation/routes'
 import { isMpWeixin } from '@/platform/mp-weixin'
@@ -17,9 +17,12 @@ const user = useUserStore()
 const kycLabel = ref('')
 const passLab = computed(() => (preview.payPassword ? '已设置' : '未设置'))
 const accountLabel = computed(() => user.nickname || preview.profile.name || '已登录')
-const personaLabel = computed(() => (preview.isMember ? '会员' : '非会员'))
+const subjectLabel = ref(readPreviewSubject())
+const previewError = ref('')
+const memberLabel = computed(() => (preview.isMember ? '会员' : '非会员'))
 
 onShow(() => {
+  subjectLabel.value = readPreviewSubject()
   void loadKyc()
 })
 
@@ -42,12 +45,14 @@ function logout() {
   resetTo(routes.login)
 }
 
-async function usePersona(persona: PreviewPersona) {
+async function useSubject(subject: PreviewSubject) {
+  previewError.value = ''
   try {
-    await switchPreviewPersona(persona)
+    await switchPreviewSubject(subject)
+    subjectLabel.value = readPreviewSubject()
     uni.showToast({ title: '已切换预览身份', icon: 'none' })
   } catch (error) {
-    uni.showToast({ title: apiErrorMessage(error, '预览身份未切换'), icon: 'none' })
+    previewError.value = apiErrorMessage(error, '预览身份未切换')
   }
 }
 </script>
@@ -92,17 +97,27 @@ async function usePersona(persona: PreviewPersona) {
       <view v-if="!isMpWeixin" class="mt-16">
         <view class="list-group">
           <view class="list-cell">
-            <text class="cell-body">预览身份</text>
-            <text class="muted t-13">{{ personaLabel }}</text>
+            <text class="cell-body">预览标识</text>
+            <text class="muted t-13">{{ subjectLabel }}</text>
+          </view>
+          <view class="list-cell">
+            <text class="cell-body">会员标识</text>
+            <text class="muted t-13">{{ memberLabel }}</text>
           </view>
         </view>
-        <view class="btn btn-ghost btn-block mt-12 hit" @click="usePersona('member')"
-          >切换为会员测试用户</view
+        <view class="btn btn-ghost btn-block mt-12 hit" @click="useSubject(PREVIEW_SUBJECT_MEMBER)"
+          >切换到 preview-member</view
         >
-        <view class="btn btn-ghost btn-block mt-12 hit" @click="usePersona('nonmember')"
-          >切换为非会员测试用户</view
+        <view
+          class="btn btn-ghost btn-block mt-12 hit"
+          @click="useSubject(PREVIEW_SUBJECT_NONMEMBER)"
+          >切换到 preview-nonmember</view
         >
-        <text class="hint mt-12">仅用于 H5 开发预览。切换会重新申请测试会话，不是微信登录。</text>
+        <text class="hint mt-12"
+          >仅用于 H5 开发预览。会员标识以登录接口返回的 member
+          为准。预览登录关闭时会提示已忽略。</text
+        >
+        <view v-if="previewError" class="notice mt-12">{{ previewError }}</view>
       </view>
       <view class="btn btn-ghost btn-block mt-20 hit" @click="logout">退出登录</view>
       <text class="hint center mt-16">奥瑞尔 AUREL · 预览版本</text>

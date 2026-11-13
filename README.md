@@ -2,9 +2,15 @@
 
 uni-app（Vue 3 + TypeScript）用户端。正式交付是微信小程序。H5 只作为开发预览：保留预览口令闸和宽屏手机框，不提供微信网页授权，也不发公众号模板消息。
 
-小程序登录调用 `wx.login`，把 `code` 交给 `POST /api/v1/auth/mini/login`，之后的用户接口带 `Authorization: Bearer`。手机号不是账号唯一键；已有的手机号按钮可以再调 `POST /api/v1/auth/mini/phone`，登录不依赖它。H5 在通过预览闸之后调用 `POST /api/v1/auth/preview/login` 申请测试会话，设置页可以切换会员 / 非会员测试身份。停用账号会看到接口返回的错误，并且保持未登录。
+对接 `aurel-mall-api` 的 `/api/v1`。成功响应是 `{ code: 0, message, data }`，失败时 HTTP 状态与 `code` 相同。
 
-本阶段已接通实名认证（设置里的姓名、身份证号、手机号）、收货地址，以及创业专区 / 会员商城的商品列表和详情。不下单、不支付、不做钱包转账或提现。`wx.requestPayment` 仍是占位。
+- 小程序登录：`wx.login` 后 `POST /api/v1/auth/mini/login`，body `{ "code": "<wx.login 的 code>" }`。之后的用户接口带 `Authorization: Bearer`。已有会话时，手机号按钮调用 `POST /api/v1/auth/mini/phone`，body `{ "code": "<手机号快速验证的 code>" }`。手机号不是登录键。停用账号返回 401「账号已停用」，不保存令牌。
+- H5 预览：口令闸通过后 `POST /api/v1/auth/preview/login`，body `{ "subject": "preview-member" }` 或 `{ "subject": "preview-nonmember" }`。`subject` 只含字母、数字、点、下划线和中划线。会员标识用返回的 `user.member`，不按 subject 名称推断。`ALLOW_PREVIEW_AUTH` 关闭时返回 403，文案含「已忽略」，页面展示该原因并保持未登录。这不是微信网页授权。
+- 实名：`GET` / `POST /api/v1/me/kyc`。提交 `{ "realName", "idNumber", "mobile" }`，读取 `realName`、`idNumber`、`mobile`、`verified`。
+- 地址：`GET` / `POST /api/v1/me/addresses`，`PUT` / `DELETE /api/v1/me/addresses/:id`。写入 `contactName`、`contactPhone`、`province`、`city`、`district`、`detail`、`isDefault`。设为默认是 `POST /api/v1/me/addresses/:id/default`。
+- 商品：登录后 `GET /api/v1/catalog/products?zone=startup|mall` 和 `GET /api/v1/catalog/products/:id`。使用 `priceFen`、`pvFen`、`freightFen`、`stockQuantity`、`subtitle`、`coverUrl`、`category`。金额是分，商城 `pvFen` 的 100 等于 1 PV，不是售价。非会员看会员商城得到 403「非会员不能浏览会员商城」；创业专区仍可浏览。未上架或不存在是 404。
+
+不下单、不支付、不做钱包转账或提现。`wx.requestPayment` 仍是占位。
 
 ## 技术栈
 

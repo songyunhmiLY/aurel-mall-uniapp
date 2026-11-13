@@ -1,13 +1,10 @@
 import { request } from './http'
 import { asRecord, readString } from './record'
 
-/**
- * 写入字段与设置页一致：contactName、phone、province、city、district、detail、isDefault。
- * 读取时同时接受表字段 contactPhone。
- */
+/** 写入 body 与地址接口一致。手机号字段是 contactPhone。 */
 export interface AddressInput {
   contactName: string
-  phone: string
+  contactPhone: string
   province: string
   city: string
   district: string
@@ -21,13 +18,6 @@ export interface Address extends AddressInput {
 
 export function fetchAddresses() {
   return request<unknown>({ path: '/me/addresses', withAuth: true }).then(readAddressList)
-}
-
-export function fetchAddress(id: string) {
-  return request<unknown>({
-    path: `/me/addresses/${encodeURIComponent(id)}`,
-    withAuth: true,
-  }).then(readAddress)
 }
 
 export function createAddress(body: AddressInput) {
@@ -56,28 +46,17 @@ export function deleteAddress(id: string) {
   })
 }
 
-export function toAddressInput(item: Address, isDefault = item.isDefault): AddressInput {
-  return {
-    contactName: item.contactName,
-    phone: item.phone,
-    province: item.province,
-    city: item.city,
-    district: item.district,
-    detail: item.detail,
-    isDefault,
-  }
+export function setDefaultAddress(id: string) {
+  return request<unknown>({
+    path: `/me/addresses/${encodeURIComponent(id)}/default`,
+    method: 'POST',
+    withAuth: true,
+  })
 }
 
 export function readAddressList(data: unknown): Address[] {
-  const record = asRecord(data)
-  const raw = Array.isArray(data)
-    ? data
-    : Array.isArray(record?.items)
-      ? record.items
-      : Array.isArray(record?.list)
-        ? record.list
-        : []
-  return raw.map(readAddress).filter((item): item is Address => item !== null)
+  if (!Array.isArray(data)) return []
+  return data.map(readAddress).filter((item): item is Address => item !== null)
 }
 
 export function readAddress(data: unknown): Address | null {
@@ -87,12 +66,12 @@ export function readAddress(data: unknown): Address | null {
   if (!id) return null
   return {
     id,
-    contactName: readString(record.contactName) || readString(record.name),
-    phone: readString(record.phone) || readString(record.contactPhone),
+    contactName: readString(record.contactName),
+    contactPhone: readString(record.contactPhone),
     province: readString(record.province),
     city: readString(record.city),
     district: readString(record.district),
     detail: readString(record.detail),
-    isDefault: record.isDefault === true || record.def === true,
+    isDefault: record.isDefault === true,
   }
 }

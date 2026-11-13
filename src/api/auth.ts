@@ -5,8 +5,8 @@ export interface AuthUser {
   id: string
   nickname: string
   status: string
-  /** 只有接口明确给出布尔值时才有意义。缺省不推断会员身份。 */
-  member: boolean | null
+  /** 来自登录 data.user.member。有市场树席位才是 true。 */
+  member: boolean
 }
 
 export interface AuthSession {
@@ -14,7 +14,10 @@ export interface AuthSession {
   user: AuthUser
 }
 
-export type PreviewPersona = 'member' | 'nonmember'
+export const PREVIEW_SUBJECT_MEMBER = 'preview-member'
+export const PREVIEW_SUBJECT_NONMEMBER = 'preview-nonmember'
+
+export type PreviewSubject = typeof PREVIEW_SUBJECT_MEMBER | typeof PREVIEW_SUBJECT_NONMEMBER
 
 /** 小程序 wx.login 的 code。手机号不参与这次登录。 */
 export function postMiniLogin(body: { code: string }) {
@@ -25,7 +28,10 @@ export function postMiniLogin(body: { code: string }) {
   }).then(readAuthSession)
 }
 
-/** 已有会话后，微信手机号按钮可以补交 code。不能用来代替登录。 */
+/**
+ * 已有会话后提交手机号快速验证的 code。
+ * body 与小程序登录一样只有 code，号码不是登录键。
+ */
 export function postMiniPhone(body: { code: string }) {
   return request<unknown>({
     path: '/auth/mini/phone',
@@ -35,39 +41,31 @@ export function postMiniPhone(body: { code: string }) {
   })
 }
 
-/**
- * H5 开发预览的测试会话。persona 用来切换会员 / 非会员测试用户。
- * 不是正式登录，也不走微信网页授权。
- */
-export function postPreviewLogin(body: { persona: PreviewPersona }) {
+/** H5 预览会话。subject 是 1–64 位字母、数字、点、下划线或中划线。 */
+export function postPreviewLogin(body: { subject: string }) {
   return request<unknown>({
     path: '/auth/preview/login',
     method: 'POST',
-    data: body,
+    data: { subject: body.subject },
   }).then(readAuthSession)
 }
 
 export function readAuthSession(data: unknown): AuthSession {
   const record = asRecord(data)
-  const token = readString(record?.token) || readString(record?.accessToken)
-  if (!token) throw new ApiError('登录响应无效，未返回 token')
-
+  const token = readString(record?.token)
   const userRecord = asRecord(record?.user)
-  const status = readString(userRecord?.status) || readString(record?.status)
-  if (status === 'disabled') throw new ApiError('账号已停用', 403)
-
-  const memberValue =
-    userRecord?.member ?? userRecord?.isMember ?? record?.member ?? record?.isMember
+  if (!token || !userRecord || typeof userRecord.member !== 'boolean') {
+    throw new ApiError('登录响应无效，未返回 token 或会员标识')
+  }
+  const status = readString(userRecord.status)
+  if (status === 'disabled') throw new ApiError('账号已停用', 401)
   return {
     token,
     user: {
-      id: readString(userRecord?.id) || readString(record?.id),
-      nickname:
-        readString(userRecord?.nickname) ||
-        readString(userRecord?.name) ||
-        readString(record?.nickname),
+      id: readString(userRecord.id),
+      nickname: readString(userRecord.nickname),
       status,
-      member: typeof memberValue === 'boolean' ? memberValue : null,
+      member: userRecord.member,
     },
   }
 }

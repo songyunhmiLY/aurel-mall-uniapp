@@ -1,20 +1,13 @@
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
-import {
-  createAddress,
-  fetchAddress,
-  fetchAddresses,
-  updateAddress,
-  type AddressInput,
-} from '@/api/address'
-import { isAccountBlockedError } from '@/api/http'
+import { createAddress, fetchAddresses, updateAddress, type AddressInput } from '@/api/address'
 import { sessionErrorMessage } from '@/auth/account-session'
 import AppFrame from '@/components/chrome/AppFrame.vue'
 
 const editingId = ref('')
 const contactName = ref('')
-const phone = ref('')
+const contactPhone = ref('')
 const province = ref('')
 const city = ref('')
 const district = ref('')
@@ -32,18 +25,6 @@ onLoad((query) => {
 
 async function load(id: string) {
   try {
-    const item = await fetchAddress(id)
-    if (item) {
-      fill(item)
-      return
-    }
-  } catch (error) {
-    if (isAccountBlockedError(error)) {
-      errorText.value = sessionErrorMessage(error, '地址加载失败')
-      return
-    }
-  }
-  try {
     const list = await fetchAddresses()
     const found = list.find((item) => item.id === id)
     if (!found) {
@@ -58,7 +39,7 @@ async function load(id: string) {
 
 function fill(item: AddressInput & { id?: string }) {
   contactName.value = item.contactName
-  phone.value = item.phone
+  contactPhone.value = item.contactPhone
   province.value = item.province
   city.value = item.city
   district.value = item.district
@@ -70,7 +51,7 @@ async function save() {
   if (pending.value) return
   const body: AddressInput = {
     contactName: contactName.value.trim(),
-    phone: phone.value.trim(),
+    contactPhone: contactPhone.value.trim(),
     province: province.value.trim(),
     city: city.value.trim(),
     district: district.value.trim(),
@@ -79,7 +60,7 @@ async function save() {
   }
   if (
     !body.contactName ||
-    !body.phone ||
+    !body.contactPhone ||
     !body.province ||
     !body.city ||
     !body.district ||
@@ -113,7 +94,7 @@ async function save() {
       </view>
       <view class="field">
         <text class="field__label">手机号</text>
-        <input v-model="phone" class="field__input" maxlength="32" placeholder="手机号" />
+        <input v-model="contactPhone" class="field__input" maxlength="32" placeholder="手机号" />
       </view>
       <view class="field">
         <text class="field__label">省</text>

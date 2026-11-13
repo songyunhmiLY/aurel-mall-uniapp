@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onShow } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
-import { fetchProducts } from '@/api/product'
+import { fenToYuan, fetchProducts } from '@/api/product'
 import { sessionErrorMessage } from '@/auth/account-session'
 import AppFrame from '@/components/chrome/AppFrame.vue'
 import ProductArt from '@/components/visual/ProductArt.vue'
@@ -28,9 +28,12 @@ onShow(() => {
 async function load() {
   errorText.value = ''
   try {
-    const result = await fetchProducts('startup')
-    products.value = result.products
-    unitPrice.value = result.unitPrice
+    products.value = await fetchProducts('startup')
+    const first = products.value[0]?.priceFen
+    unitPrice.value =
+      first != null && products.value.every((item) => item.priceFen === first)
+        ? fenToYuan(first)
+        : null
   } catch (error) {
     products.value = []
     unitPrice.value = null
@@ -75,7 +78,9 @@ function openDetail(id: string) {
           <text class="pr-name">{{ item.name }}</text>
           <text v-if="item.subtitle" class="pr-desc">{{ item.subtitle }}</text>
           <view class="pr-foot">
-            <text class="price t-17"><text class="yen">¥</text>{{ money(item.price) }}</text>
+            <text class="price t-17"
+              ><text class="yen">¥</text>{{ money(fenToYuan(item.priceFen)) }}</text
+            >
             <view class="btn btn-primary btn-sm hit" @click.stop="openDetail(item.id)"
               >立即购买</view
             >

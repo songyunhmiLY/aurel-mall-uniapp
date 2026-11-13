@@ -1,9 +1,9 @@
 import { request } from './http'
 import { asRecord, readString } from './record'
 
-/** 实名只收集这三项。不上传证件照，也不走微信人脸核身。 */
+/** POST /me/kyc。只提交这三项，不上传证件照。 */
 export interface KycInput {
-  name: string
+  realName: string
   idNumber: string
   mobile: string
 }
@@ -27,13 +27,11 @@ export function submitKyc(body: KycInput) {
 
 export function readKyc(data: unknown): KycProfile {
   const record = asRecord(data)
-  if (!record) return { verified: false, name: '', idNumber: '', mobile: '' }
-  const status = readString(record.status)
+  if (!record) return { verified: false, realName: '', idNumber: '', mobile: '' }
   return {
-    verified: record.verified === true || status === 'verified',
-    name: readString(record.name) || readString(record.realName),
-    idNumber:
-      readString(record.idNumber) || readString(record.nationalId) || readString(record.idCardNo),
-    mobile: readString(record.mobile) || readString(record.phone) || readString(record.mobilePhone),
+    verified: record.verified === true,
+    realName: readString(record.realName),
+    idNumber: readString(record.idNumber),
+    mobile: readString(record.mobile),
   }
 }
