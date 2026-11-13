@@ -89,6 +89,10 @@
       "style": { "navigationBarTitleText": "商品详情", "navigationStyle": "custom" }
     },
     {
+      "path": "pages/order/checkout",
+      "style": { "navigationBarTitleText": "确认订单", "navigationStyle": "custom" }
+    },
+    {
       "path": "pages/order/list",
       "style": { "navigationBarTitleText": "我的订单", "navigationStyle": "custom" }
     },

@@ -1,7 +1,7 @@
 /**
  * 仅微信小程序可用的能力。
  * 登录使用 wx.login 的 code。手机号按钮只取出授权 code，不在这里决定账号。
- * 支付仍未接入。
+ * 支付使用订单支付接口返回的 JSAPI 字段。这里不实现微信网页授权。
  */
 
 interface WxLoginApi {
@@ -9,7 +9,23 @@ interface WxLoginApi {
     success?: (res: { code?: string }) => void
     fail?: (err: unknown) => void
   }): void
-  requestPayment(options: { success?: () => void; fail?: (err: unknown) => void }): void
+  requestPayment(options: {
+    timeStamp: string
+    nonceStr: string
+    package: string
+    signType: 'RSA'
+    paySign: string
+    success?: () => void
+    fail?: (err: unknown) => void
+  }): void
+}
+
+export interface WechatPayRequest {
+  timeStamp: string
+  nonceStr: string
+  prepayPackage: string
+  signType: 'RSA'
+  paySign: string
 }
 
 declare const wx: WxLoginApi
@@ -57,11 +73,15 @@ export function readPhoneAuthCode(event: PhoneAuthEvent): string {
   return typeof code === 'string' ? code.trim() : ''
 }
 
-export function requestWechatPayPlaceholder(): Promise<void> {
+export function requestWechatPayment(params: WechatPayRequest): Promise<void> {
   return new Promise((resolve, reject) => {
     // #ifdef MP-WEIXIN
-    // 支付参数未定。保留 wx.requestPayment 的调起位置，不填写业务单号或签名。
     wx.requestPayment({
+      timeStamp: params.timeStamp,
+      nonceStr: params.nonceStr,
+      package: params.prepayPackage,
+      signType: params.signType,
+      paySign: params.paySign,
       success: () => resolve(),
       fail: () => reject(new Error('微信支付未完成')),
     })

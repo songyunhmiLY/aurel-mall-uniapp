@@ -8,8 +8,8 @@ import AppFrame from '@/components/chrome/AppFrame.vue'
 import LockPanel from '@/components/common/LockPanel.vue'
 import QtyStepper from '@/components/common/QtyStepper.vue'
 import ProductArt from '@/components/visual/ProductArt.vue'
-import { money, yuan } from '@/demo/format'
-import { openPage, routes } from '@/navigation/routes'
+import { formatFen, yuanFen } from '@/demo/format'
+import { openPage, routes, withQuery } from '@/navigation/routes'
 import { useCartStore } from '@/stores/cart'
 import type { ProductView, ProductZone } from '@/types/product'
 
@@ -22,7 +22,9 @@ const errorText = ref('')
 const membershipText = ref('')
 
 const isMall = computed(() => (product.value?.zone ?? zone.value) === 'mall')
-const amount = computed(() => (product.value ? fenToYuan(product.value.priceFen) * qty.value : 0))
+const payableFen = computed(() =>
+  product.value ? (product.value.priceFen + product.value.freightFen) * qty.value : 0,
+)
 
 onLoad((query) => {
   const id = typeof query?.id === 'string' ? query.id : ''
@@ -54,7 +56,7 @@ async function load(id: string) {
 }
 
 function pvText(pvFen: number | null): string {
-  return pvFen == null ? '—' : money(fenToYuan(pvFen))
+  return pvFen == null ? '—' : formatFen(pvFen)
 }
 
 function change(delta: number) {
@@ -76,7 +78,14 @@ function addCart() {
 }
 
 function buyNow() {
-  uni.showToast({ title: '支付尚未接入', icon: 'none' })
+  if (!product.value) return
+  openPage(
+    withQuery(routes.checkout, {
+      zone: product.value.zone,
+      productId: product.value.id,
+      quantity: String(qty.value),
+    }),
+  )
 }
 </script>
 
@@ -115,7 +124,7 @@ function buyNow() {
         }}</text>
         <view class="price-pv mt-12">
           <text class="price t-24"
-            ><text class="yen">¥</text>{{ money(fenToYuan(product.priceFen)) }}</text
+            ><text class="yen">¥</text>{{ formatFen(product.priceFen) }}</text
           >
           <text v-if="isMall" class="pv-badge">PV {{ pvText(product.pvFen) }}</text>
         </view>
@@ -125,7 +134,7 @@ function buyNow() {
         <text v-if="product.subtitle" class="detail-desc">{{ product.subtitle }}</text>
         <text v-if="product.body" class="detail-desc">{{ product.body }}</text>
         <text class="muted t-13 mt-8"
-          >运费 {{ yuan(fenToYuan(product.freightFen)) }} · 库存 {{ product.stockQuantity }}</text
+          >运费 {{ yuanFen(product.freightFen) }} · 库存 {{ product.stockQuantity }}</text
         >
         <view class="card card-pad mt-16 row-between">
           <text class="t-14">购买数量</text>
@@ -142,7 +151,7 @@ function buyNow() {
       <view v-else class="bottom-bar">
         <view class="bb-price">
           <view class="lab">应付</view>
-          <view class="num">{{ yuan(amount) }}</view>
+          <view class="num">{{ yuanFen(payableFen) }}</view>
         </view>
         <view class="btn btn-primary hit" @click="buyNow">立即购买</view>
       </view>

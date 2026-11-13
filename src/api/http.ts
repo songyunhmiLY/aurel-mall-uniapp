@@ -80,6 +80,14 @@ export function isMembershipError(error: unknown): boolean {
   return error instanceof ApiError && error.message.includes('非会员不能浏览会员商城')
 }
 
+export function isMallPurchaseError(error: unknown): boolean {
+  return error instanceof ApiError && error.message.includes('非会员不能购买会员商城')
+}
+
+export function isMissingInviterError(error: unknown): boolean {
+  return error instanceof ApiError && error.message.includes('缺少邀请关系')
+}
+
 function parseBody(data: unknown): unknown {
   if (typeof data !== 'string') return data
   const text = data.trim()

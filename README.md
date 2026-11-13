@@ -9,8 +9,12 @@ uni-app（Vue 3 + TypeScript）用户端。正式交付是微信小程序。H5 �
 - 实名：`GET` / `POST /api/v1/me/kyc`。提交 `{ "realName", "idNumber", "mobile" }`，读取 `realName`、`idNumber`、`mobile`、`verified`。
 - 地址：`GET` / `POST /api/v1/me/addresses`，`PUT` / `DELETE /api/v1/me/addresses/:id`。写入 `contactName`、`contactPhone`、`province`、`city`、`district`、`detail`、`isDefault`。设为默认是 `POST /api/v1/me/addresses/:id/default`。
 - 商品：登录后 `GET /api/v1/catalog/products?zone=startup|mall` 和 `GET /api/v1/catalog/products/:id`。使用 `priceFen`、`pvFen`、`freightFen`、`stockQuantity`、`subtitle`、`coverUrl`、`category`。金额是分，商城 `pvFen` 的 100 等于 1 PV，不是售价。非会员看会员商城得到 403「非会员不能浏览会员商城」；创业专区仍可浏览。未上架或不存在是 404。
+- 邀请码：登录不传 `inviteCode`。登录后单独 `POST /api/v1/me/inviter`，body `{ "inviteCode": "000000" }`。成功 `data` 为 `{ inviteCode, inviterId }`。不会自动绑定根账户。没有邀请关系时，创业专区下单返回 400「缺少邀请关系」。会员的邀请二维码只编码本人的 6 位邀请码；非会员没有可分享的邀请码。H5 扫码地址带 `?inviteCode=`，小程序读页面查询或 `scene`。注册必须等这次绑定成功才算完成。
+- 钱包：`GET /api/v1/me/wallets`。`points`、`withdrawable`、`consumption` 各自有 `balanceFen`、`frozenFen`、`availableFen`，都是十进制字符串。
+- 订单：`POST /api/v1/orders`，body `{ zone, addressId, items: [{ productId, quantity }] }`。列表 `GET /api/v1/orders?page=&pageSize=`，详情 `GET /api/v1/orders/:id`。金额字段是 JSON 数字，单位是分。状态是 `pending_payment`、`paid`、`shipped`、`closed`。
+- 支付：`POST /api/v1/orders/:id/pay`。来源顺序由服务端固定。账户够付时 `wechat` 为 `null` 且订单为 `paid`；否则 `wechat.amountFen` 是微信部分。H5 预览在商户证书未配置时用 `POST /api/v1/payments/wechat/sandbox/succeed|fail`，body `{ payNo }`。不实现微信网页授权。`POST /api/v1/orders/:id/cancel` 与 `POST /api/v1/orders/:id/timeout` 只用于仍待支付的订单，本阶段不自动关单。
 
-不下单、不支付、不做钱包转账或提现。`wx.requestPayment` 仍是占位。
+不做商城退款、提现、转账、报单或奖励结算。当前用户自己的邀请码只读登录响应里的 `user.inviteCode`。
 
 ## 技术栈
 
