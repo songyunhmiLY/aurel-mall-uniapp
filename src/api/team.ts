@@ -1,38 +1,31 @@
-import { request } from './http'
-import type { MarketBrief, TeamOverview } from '@/types/team'
+import { ApiError, request } from './http'
+import { asRecord, readDecimalFen, readPageCount, readRequiredText } from './record'
+import type { TeamMarket, TeamOverview } from '@/types/team'
 
-const emptyOverview: TeamOverview = {
-  marketCount: 0,
-  monthPerformance: '0.00',
-  markets: [],
+const INVALID = '创业团队响应无效'
+
+/** GET /me/team。金额是十进制字符串，单位分。 */
+export function fetchTeam() {
+  return request<unknown>({ path: '/me/team', withAuth: true }).then(readTeam)
 }
 
-function asMarket(value: Partial<MarketBrief> | undefined, index: number): MarketBrief | null {
-  if (!value || typeof value.name !== 'string') return null
+export function readTeam(data: unknown): TeamOverview {
+  const record = asRecord(data)
+  if (!record || !Array.isArray(record.markets)) throw new ApiError(INVALID)
   return {
-    id: value.id || String(index),
-    name: value.name,
-    monthAmount: value.monthAmount || '--',
-    weekAmount: value.weekAmount || '--',
-    dayAmount: value.dayAmount || '--',
+    marketCount: readPageCount(record.marketCount, INVALID),
+    totalPerformanceFen: readDecimalFen(record.totalPerformanceFen, INVALID),
+    markets: record.markets.map(readMarket),
   }
 }
 
-export async function loadTeamOverview(): Promise<TeamOverview> {
-  const data = await request<Partial<TeamOverview>>({
-    path: '/team/overview',
-    withAuth: true,
-  })
-  const markets = Array.isArray(data.markets)
-    ? data.markets
-        .slice(0, 3)
-        .map((item, index) => asMarket(item, index))
-        .filter((item): item is MarketBrief => item !== null)
-    : emptyOverview.markets
-
+function readMarket(value: unknown): TeamMarket {
+  const record = asRecord(value)
+  if (!record) throw new ApiError(INVALID)
   return {
-    marketCount: typeof data.marketCount === 'number' ? data.marketCount : markets.length,
-    monthPerformance: data.monthPerformance || emptyOverview.monthPerformance,
-    markets,
+    name: readRequiredText(record.name, INVALID),
+    monthPerformanceFen: readDecimalFen(record.monthPerformanceFen, INVALID),
+    recent7DaysPerformanceFen: readDecimalFen(record.recent7DaysPerformanceFen, INVALID),
+    todayPerformanceFen: readDecimalFen(record.todayPerformanceFen, INVALID),
   }
 }

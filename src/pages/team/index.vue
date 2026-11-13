@@ -1,44 +1,52 @@
 <script setup lang="ts">
-import { onLoad } from '@dcloudio/uni-app'
+import { onShow } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
-import { loadTeamOverview } from '@/api/team'
+import { fetchTeam } from '@/api/team'
+import { sessionErrorMessage } from '@/auth/account-session'
 import AppFrame from '@/components/chrome/AppFrame.vue'
 import MarketOverview from '@/components/team/MarketOverview.vue'
 import MarketStatus from '@/components/team/MarketStatus.vue'
-import { placeholderMarkets } from '@/demo/catalog'
-import { money } from '@/demo/format'
 import { usePreviewStore } from '@/stores/preview'
-import type { MarketBrief } from '@/types/team'
+import { useUserStore } from '@/stores/user'
+import type { TeamOverview } from '@/types/team'
 
 const preview = usePreviewStore()
-const markets = ref<MarketBrief[]>(preview.isMember ? placeholderMarkets.slice(0, 2) : [])
+const user = useUserStore()
+const overview = ref<TeamOverview | null>(null)
+const errorText = ref('')
 
-const monthTotal = computed(() => {
-  const sum = markets.value.reduce((total, item) => total + (Number(item.monthAmount) || 0), 0)
-  return money(sum)
+const displayName = computed(() => user.nickname || preview.profile.name || '访客')
+const initial = computed(() => displayName.value.slice(0, 1) || '客')
+
+onShow(() => {
+  if (!user.token) return
+  void load()
 })
 
-onLoad(() => {
-  loadTeamOverview()
-    .then((data) => {
-      markets.value = data.markets
-    })
-    .catch(() => undefined)
-})
-
-const count = computed(() => markets.value.length)
+async function load() {
+  errorText.value = ''
+  try {
+    overview.value = await fetchTeam()
+  } catch (error) {
+    overview.value = null
+    errorText.value = sessionErrorMessage(error, '创业团队加载失败')
+  }
+}
 </script>
 
 <template>
   <AppFrame title="创业团队">
     <view class="team-banner" />
+    <view v-if="errorText" class="pad">
+      <view class="notice">{{ errorText }}</view>
+    </view>
     <MarketOverview
-      :name="preview.profile.name || '访客'"
-      :initial="preview.avatarText"
+      :name="displayName"
+      :initial="initial"
       :membership="preview.isMember ? '会员' : '尚未成为会员'"
-      :market-count="count"
-      :month-performance="monthTotal"
+      :market-count="overview ? overview.marketCount : null"
+      :total-performance-fen="overview ? overview.totalPerformanceFen : null"
     />
-    <MarketStatus :markets="markets" />
+    <MarketStatus v-if="!errorText" :markets="overview ? overview.markets : null" />
   </AppFrame>
 </template>
