@@ -2,9 +2,13 @@
 import { computed } from 'vue'
 import EntryArt from '@/components/visual/EntryArt.vue'
 import { openPage, routes } from '@/navigation/routes'
+import type { CofounderEntry } from '@/types/cofounder'
 import type { WelfareEntry } from '@/types/welfare'
 
-const props = defineProps<{ welfareEntry?: WelfareEntry | null }>()
+const props = defineProps<{
+  welfareEntry?: WelfareEntry | null
+  cofounderEntry?: CofounderEntry | null
+}>()
 
 const entries = computed(() => [
   {
@@ -20,8 +24,8 @@ const entries = computed(() => [
     url: routes.founder,
     kicker: '名额招募',
     title: '联合创始人',
-    desc: '了解权益并在开放期间申请开通。',
-    imageUrl: null,
+    desc: props.cofounderEntry?.copy ?? '',
+    imageUrl: props.cofounderEntry?.imageUrls[0] ?? null,
   },
   {
     key: 'startup' as const,

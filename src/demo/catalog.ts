@@ -155,7 +155,7 @@ export const homeBanners: BannerSlide[] = [
     href: 'founder',
     kicker: '名额招募',
     title: '联合创始人',
-    desc: '了解权益，并在开放期间申请开通。',
+    desc: '了解联合创始人。',
     tone: 'navy',
   },
   {
