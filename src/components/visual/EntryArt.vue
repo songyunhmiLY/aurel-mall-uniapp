@@ -1,10 +1,11 @@
 <script setup lang="ts">
-defineProps<{ kind: 'welfare' | 'cofounder' | 'startup' }>()
+defineProps<{ kind: 'welfare' | 'cofounder' | 'startup'; imageUrl?: string | null }>()
 </script>
 
 <template>
   <view class="ec-art">
-    <svg v-if="kind === 'welfare'" viewBox="0 0 216 216" xmlns="http://www.w3.org/2000/svg">
+    <image v-if="imageUrl" class="ec-photo" :src="imageUrl" mode="aspectFill" />
+    <svg v-else-if="kind === 'welfare'" viewBox="0 0 216 216" xmlns="http://www.w3.org/2000/svg">
       <rect width="216" height="216" fill="#1E252C" />
       <circle cx="108" cy="104" r="52" fill="none" stroke="#5E8F8A" stroke-width="1.4" />
       <circle cx="108" cy="104" r="22" fill="#5E8F8A" opacity="0.9" />
@@ -12,7 +13,12 @@ defineProps<{ kind: 'welfare' | 'cofounder' | 'startup' }>()
     </svg>
     <svg v-else-if="kind === 'cofounder'" viewBox="0 0 216 216" xmlns="http://www.w3.org/2000/svg">
       <rect width="216" height="216" fill="#161A1F" />
-      <polygon points="108,46 150,72 150,124 108,150 66,124 66,72" fill="none" stroke="#C5D9D6" stroke-width="1.3" />
+      <polygon
+        points="108,46 150,72 150,124 108,150 66,124 66,72"
+        fill="none"
+        stroke="#C5D9D6"
+        stroke-width="1.3"
+      />
       <circle cx="108" cy="98" r="16" fill="#5E8F8A" opacity="0.9" />
       <circle cx="84" cy="114" r="8" fill="#C5D9D6" opacity="0.8" />
       <circle cx="132" cy="114" r="8" fill="#C5D9D6" opacity="0.8" />

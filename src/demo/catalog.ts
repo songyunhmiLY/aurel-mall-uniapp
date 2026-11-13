@@ -171,7 +171,7 @@ export const homeBanners: BannerSlide[] = [
 export const homeTicker: NoticeItem[] = [
   { id: 't1', text: '系统将于 11 月 16 日 02:00–04:00 进行例行维护，期间部分服务可能短暂不可用。' },
   { id: 't2', text: '创业专区新品已上架，欢迎前往查看。' },
-  { id: 't3', text: '福利专场报名仅限当日有效，请在当天结束前完成。' },
+  { id: 't3', text: '福利专场可从首页进入。' },
   { id: 't4', text: '会员商城单笔满 399.00 元免运费。' },
 ]
 

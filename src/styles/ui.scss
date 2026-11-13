@@ -153,6 +153,11 @@ textarea {
   width: 100%;
 }
 
+.btn.is-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 .btn-sm {
   height: 32px;
   padding: 0 14px;
@@ -718,8 +723,18 @@ textarea {
 
 .ec-art {
   width: 108px;
+  min-height: 108px;
   flex-shrink: 0;
+  align-self: stretch;
   background: #1e252c;
+  overflow: hidden;
+}
+
+.ec-photo {
+  width: 108px;
+  height: 100%;
+  min-height: 108px;
+  display: block;
 }
 
 .ec-body {
@@ -1644,6 +1659,25 @@ textarea {
   font-weight: 600;
   letter-spacing: 0.14em;
   margin-top: 8px;
+}
+
+.welfare-hero text {
+  display: block;
+}
+
+.welfare-cover {
+  display: block;
+  width: 100%;
+  height: 180px;
+  background: var(--ink);
+}
+
+.welfare-copy {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #b7afa4;
 }
 
 .welfare-status {
