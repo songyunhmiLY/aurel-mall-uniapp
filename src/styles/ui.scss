@@ -324,8 +324,7 @@ textarea {
 }
 
 .art svg,
-.ec-art svg,
-.hc-art svg {
+.ec-art svg {
   width: 100%;
   height: 100%;
   display: block;
@@ -576,45 +575,32 @@ textarea {
   overflow: hidden;
 }
 
-.hc-art {
+.hc-photo {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 148px;
+  display: block;
 }
 
 .hc-copy {
   position: relative;
   z-index: 1;
   height: 100%;
-  padding: 22px 20px 20px;
+  padding: 22px 20px 18px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  background: linear-gradient(
-    90deg,
-    rgba(14, 18, 22, 0.72) 0%,
-    rgba(14, 18, 22, 0.28) 58%,
-    rgba(14, 18, 22, 0.08) 100%
-  );
-}
-
-.hc-kicker {
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  color: var(--gold-l);
+  background: linear-gradient(180deg, rgba(14, 18, 22, 0) 48%, rgba(14, 18, 22, 0.62) 100%);
 }
 
 .hc-title {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
-  margin-top: 4px;
-}
-
-.hc-desc {
-  font-size: 12px;
-  color: #c5d0d4;
-  margin-top: 6px;
-  line-height: 1.5;
-  max-width: 78%;
+  padding-right: 72px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .hc-dots {
@@ -652,16 +638,6 @@ textarea {
   border-radius: 12px;
   box-shadow: var(--shadow);
   overflow: hidden;
-}
-
-.ht-lab {
-  flex-shrink: 0;
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  color: var(--gold-d);
-  margin-right: 10px;
-  padding-right: 10px;
-  border-right: 1px solid var(--line);
 }
 
 .ht-mask {
@@ -807,18 +783,25 @@ textarea {
   color: var(--gold-d);
 }
 
+.hn-tag.is-news {
+  background: var(--warn-dim);
+  color: var(--warn);
+}
+
 .hn-main {
   flex: 1;
   min-width: 0;
 }
 
 .hn-title {
+  display: block;
   font-size: 15px;
   font-weight: 600;
   line-height: 1.4;
 }
 
 .hn-sum {
+  display: block;
   font-size: 12px;
   color: var(--muted);
   margin-top: 4px;
@@ -826,9 +809,22 @@ textarea {
 }
 
 .hn-meta {
+  display: block;
   font-size: 11px;
   color: var(--muted-2);
   margin-top: 6px;
+}
+
+.hn-cover {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  background: var(--paper-2);
+}
+
+.hn-more {
+  padding: 0 16px 16px;
 }
 
 .article-title {
@@ -844,13 +840,12 @@ textarea {
 }
 
 .article-body {
+  display: block;
   margin-top: 18px;
   font-size: 15px;
   line-height: 1.85;
-}
-
-.article-body .para + .para {
-  margin-top: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* 商品 */

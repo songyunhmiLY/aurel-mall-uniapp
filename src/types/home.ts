@@ -1,29 +1,36 @@
-export interface BannerSlide {
+export interface HomeBanner {
   id: string
   title: string
-  kicker?: string
-  desc?: string
-  href?: string
-  tone?: string
+  imageUrl: string
+  pagePath: string
+  sortOrder: number
 }
 
-export interface NoticeItem {
+export interface HomeTicker {
   id: string
-  text: string
+  content: string
+  sortOrder: number
 }
 
-export interface ArticleBrief {
+export type HomeArticleKind = 'article' | 'news' | 'notice'
+
+/** 列表项不含正文。 */
+export interface HomeArticleSummary {
   id: string
+  kind: HomeArticleKind
   title: string
   summary: string
-  date?: string
-  typeName?: string
-  type?: 'notice' | 'article'
-  body?: string[]
+  coverUrl: string | null
+  publishedAt: string
 }
 
-export interface HomeFeed {
-  banners?: BannerSlide[]
-  notices?: NoticeItem[]
-  articles?: ArticleBrief[]
+export interface HomeArticleDetail extends HomeArticleSummary {
+  body: string
+}
+
+export interface HomeArticlePage {
+  items: HomeArticleSummary[]
+  total: number
+  page: number
+  pageSize: number
 }

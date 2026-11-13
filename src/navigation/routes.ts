@@ -67,22 +67,25 @@ export function resetTo(url: string): void {
   uni.reLaunch({ url })
 }
 
-export function openBanner(href?: string): void {
-  if (href === 'startup') {
-    openPage(routes.shop)
-    return
-  }
-  if (href === 'mall') {
-    openPage(routes.mall)
-    return
-  }
-  if (href === 'founder') {
-    openPage(routes.founder)
-    return
-  }
-  if (href?.startsWith('article:')) {
-    openPage(withId(routes.articleDetail, href.slice('article:'.length)))
-    return
-  }
-  openPage(routes.home)
+const knownPages = new Set<string>(Object.values(routes))
+
+/**
+ * 打开轮播图配置的小程序页面。
+ * 只接受本小程序已注册的页面；http(s) 和其他协议不打开。
+ */
+export function openMiniProgramPage(pagePath: string): void {
+  const url = resolveMiniProgramPage(pagePath)
+  if (!url) return
+  openPage(url)
+}
+
+function resolveMiniProgramPage(pagePath: string): string | null {
+  const text = pagePath.trim()
+  if (!text || /\s/.test(text) || text.includes('\\') || text.includes('..')) return null
+  if (/^[a-z][a-z0-9+.-]*:/i.test(text) || text.startsWith('//')) return null
+  const withSlash = text.startsWith('/') ? text : `/${text}`
+  const queryIndex = withSlash.indexOf('?')
+  const path = queryIndex === -1 ? withSlash : withSlash.slice(0, queryIndex)
+  if (path.endsWith('/') || !knownPages.has(path)) return null
+  return queryIndex === -1 ? path : withSlash
 }
