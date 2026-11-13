@@ -1,19 +1,31 @@
 <script setup lang="ts">
 import { onLoad, onShow } from '@dcloudio/uni-app'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { fetchOrder } from '@/api/order'
+import { applyOrderRefund } from '@/api/refund'
 import { sessionErrorMessage } from '@/auth/account-session'
 import AppFrame from '@/components/chrome/AppFrame.vue'
 import OrderPay from '@/components/order/OrderPay.vue'
 import { formatFen, formatInstant, yuanFen } from '@/demo/format'
+import { openPage, routes, withId } from '@/navigation/routes'
 import { statusLabel, zoneLabel } from '@/orders/labels'
+import { useWalletStore } from '@/stores/wallet'
 import type { OrderView } from '@/types/order'
 
+const wallets = useWalletStore()
 const orderId = ref('')
 const order = ref<OrderView | null>(null)
 const loaded = ref(false)
 const errorText = ref('')
+const refunding = ref(false)
+const refundError = ref('')
 let requestSerial = 0
+
+const canRefund = computed(
+  () =>
+    order.value?.zone === 'mall' &&
+    (order.value.status === 'paid' || order.value.status === 'shipped'),
+)
 
 onLoad((query) => {
   orderId.value = typeof query?.id === 'string' ? query.id : ''
@@ -48,6 +60,22 @@ function replace(next: OrderView) {
   requestSerial += 1
   order.value = next
   errorText.value = ''
+}
+
+async function applyRefund() {
+  if (!order.value || refunding.value || !canRefund.value) return
+  refunding.value = true
+  refundError.value = ''
+  try {
+    const created = await applyOrderRefund(order.value.id)
+    void wallets.load()
+    uni.showToast({ title: '已提交退款申请', icon: 'none' })
+    openPage(withId(routes.refundDetail, created.id))
+  } catch (error) {
+    refundError.value = sessionErrorMessage(error, '退款未申请')
+  } finally {
+    refunding.value = false
+  }
 }
 
 function shippingLine(current: OrderView): string {
@@ -169,6 +197,23 @@ function shippingLine(current: OrderView): string {
         </view>
       </view>
       <text v-if="order.zone === 'startup'" class="hint mt-12">创业专区订单付款后不可退单。</text>
+      <template v-else>
+        <view v-if="refundError" class="notice mt-12">{{ refundError }}</view>
+        <template v-if="canRefund">
+          <text class="hint mt-12">
+            运费
+            {{
+              yuanFen(order.freightFen)
+            }}。运费和其他应扣费用不会自动计入减扣，由工作人员审核时决定。
+          </text>
+          <view class="btn btn-ghost btn-block mt-12 hit" @click="applyRefund">
+            {{ refunding ? '提交中' : '申请退款' }}
+          </view>
+        </template>
+        <view class="btn btn-ghost btn-block mt-12 hit" @click="openPage(routes.refunds)">
+          退款记录
+        </view>
+      </template>
       <OrderPay :order="order" @changed="replace" />
     </view>
   </AppFrame>

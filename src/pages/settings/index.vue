@@ -3,6 +3,7 @@ import { onShow } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import { PREVIEW_SUBJECT_MEMBER, PREVIEW_SUBJECT_NONMEMBER, type PreviewSubject } from '@/api/auth'
 import { fetchKyc } from '@/api/kyc'
+import { fetchPaymentPassword } from '@/api/payment-password'
 import { ApiError, apiErrorMessage, isAccountBlockedError } from '@/api/http'
 import { clearAuthSession, sessionErrorMessage } from '@/auth/account-session'
 import { readPreviewSubject, switchPreviewSubject } from '@/auth/preview-entry'
@@ -15,7 +16,10 @@ import { useUserStore } from '@/stores/user'
 const preview = usePreviewStore()
 const user = useUserStore()
 const kycLabel = ref('')
-const passLab = computed(() => (preview.payPassword ? '已设置' : '未设置'))
+const passwordSet = ref<boolean | null>(null)
+const passLab = computed(() =>
+  passwordSet.value === null ? '' : passwordSet.value ? '已设置' : '未设置',
+)
 const accountLabel = computed(() => user.nickname || preview.profile.name || '已登录')
 const subjectLabel = ref(readPreviewSubject())
 const previewError = ref('')
@@ -24,6 +28,7 @@ const memberLabel = computed(() => (preview.isMember ? '会员' : '非会员'))
 onShow(() => {
   subjectLabel.value = readPreviewSubject()
   void loadKyc()
+  void loadPassword()
 })
 
 async function loadKyc() {
@@ -37,6 +42,17 @@ async function loadKyc() {
       return
     }
     kycLabel.value = error instanceof ApiError && error.statusCode === 404 ? '未认证' : ''
+  }
+}
+
+async function loadPassword() {
+  try {
+    passwordSet.value = (await fetchPaymentPassword()).set
+  } catch (error) {
+    if (isAccountBlockedError(error)) {
+      sessionErrorMessage(error, '账号已停用')
+    }
+    passwordSet.value = null
   }
 }
 

@@ -38,6 +38,7 @@ const apps = computed(() => {
     { url: routes.service, label: '联系客服', icon: 'service' },
     { url: routes.addresses, label: '地址管理', icon: 'pin' },
     { url: routes.paymentAccount, label: '收款设置', icon: 'bank' },
+    { url: routes.refunds, label: '退款记录', icon: 'refund' },
     { url: routes.notices, label: '系统通知', icon: 'bell' },
     { url: routes.feedback, label: '我要反馈', icon: 'edit' },
   ]
@@ -80,7 +81,8 @@ function openOrders(status: string) {
             </text>
             <template v-if="user.userId">
               <text class="mid-id"
-                >用户 ID <text class="mono">{{ user.userId }}</text></text
+                >{{ preview.isMember ? '会员编号' : '用户 ID' }}
+                <text class="mono">{{ user.userId }}</text></text
               >
               <text class="link-copy hit" @click="copyText(user.userId)">复制</text>
             </template>

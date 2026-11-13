@@ -33,3 +33,17 @@ export function isOrderStatus(value: string): value is OrderStatus {
 export function isOrderZone(value: string): value is OrderZone {
   return value === 'startup' || value === 'mall'
 }
+
+export function refundStatusLabel(status: string): string {
+  if (status === 'pending') return '审核中'
+  if (status === 'approved') return '已通过'
+  if (status === 'rejected') return '已驳回'
+  return '审核中'
+}
+
+export function wechatRefundStatusLabel(status: string): string {
+  if (status === 'none') return '无微信退款'
+  if (status === 'sandbox') return '预览已记录'
+  if (status === 'accepted') return '微信已受理'
+  return '无微信退款'
+}
