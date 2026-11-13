@@ -19,6 +19,7 @@ uni-app（Vue 3 + TypeScript）用户端。正式交付是微信小程序。H5 �
 - 支付：`POST /api/v1/orders/:id/pay`。来源顺序由服务端固定。账户够付时 `wechat` 为 `null` 且订单为 `paid`；否则 `wechat.amountFen` 是微信部分。H5 预览在商户证书未配置时用 `POST /api/v1/payments/wechat/sandbox/succeed|fail`，body `{ payNo }`。不实现微信网页授权。`POST /api/v1/orders/:id/cancel` 与 `POST /api/v1/orders/:id/timeout` 只用于仍待支付的订单，本阶段不自动关单。
 - 商城退款：只有会员商城里已支付或已发货的订单可以 `POST /api/v1/orders/:id/refunds`。创业专区不提供退款。列表和详情是 `GET /api/v1/me/refunds` 与 `GET /api/v1/me/refunds/:id`。申请时展示 `deductionHint`，不把运费自动算进减扣。审核后的金额字段以接口返回为准。已发放的奖励不在用户端回滚或展示。
 - 创业团队：登录后 `GET /api/v1/me/team`。`marketCount` 是数字。`totalPerformanceFen` 与每个市场的 `monthPerformanceFen`、`recent7DaysPerformanceFen`、`todayPerformanceFen` 都是十进制字符串，单位分。市场只有 `name`，是该市场直接下级的称呼。没有市场时 `markets` 为空。
+- 福利专场：登录后首页入口读取 `GET /api/v1/me/welfare/entry` 的 `copy` 与 `imageUrl`。页面读取 `GET /api/v1/me/welfare`，报名是 `POST /api/v1/me/welfare/signups`。这两处 `data` 只使用 `eligible` 和 `signedUpToday`。不具备资格时展示「不具备资格」，「抢红包」不可点，也不发起报名。具备资格且当天未报名时，点击立即报名。当天已报名只反映这一状态，重复点击不会变成第二次报名。不展示轮次、上限、已领金额或剩余名额。自然日由接口决定。
 
 不提供报单、幸运返还、奖励明细或职位页面。当前用户自己的邀请码只读登录响应里的 `user.inviteCode`。会员编号是登录响应里的 `user.id`，用于消费划转。
 
@@ -137,6 +138,8 @@ H5 资讯详情对应常见的 `#/article/:id`，在 uni-app 里是：
 钱包可以查看三个账户、流水和可提现分类。会员可以划转消费账户、申请提现。会员商城订单可以申请退款。创业专区订单不能退款。进入页面、回到前台，以及划转、提现、退款成功后刷新余额，不轮询。
 
 创业团队页读取 `GET /api/v1/me/team`，展示「我的市场」（单位是「个」）、「总业绩」（只表示本月合计）和「市场情况」（最多 3 个市场，每项含本月 / 最近 7 天 / 当日）。业绩按分转成元。没有数据时显示「暂无市场」。
+
+福利专场从首页和「我的」进入，路由是 `pages/welfare/index`。首页卡片使用管理端配置的文案和图片；未配置图片时仍用原有入口图形。进入页面后只显示是否具备参与资格、今天是否已报名，以及「抢红包」。
 
 用户能看见的文案不要出现「市场树」「节点」，也不要出现「本月职位」「我的职位」「奖励明细」。可提现分类只展示接口返回的名称。
 

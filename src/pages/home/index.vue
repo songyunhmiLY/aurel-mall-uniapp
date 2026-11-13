@@ -3,6 +3,7 @@ import { onLoad, onShow } from '@dcloudio/uni-app'
 import { computed, ref, watch } from 'vue'
 import { fetchHomeFeed } from '@/api/home'
 import { walletAccount } from '@/api/wallet'
+import { fetchWelfareEntry } from '@/api/welfare'
 import AppFrame from '@/components/chrome/AppFrame.vue'
 import HomeBanner from '@/components/home/HomeBanner.vue'
 import HomeMarquee from '@/components/home/HomeMarquee.vue'
@@ -15,6 +16,7 @@ import { usePreviewStore } from '@/stores/preview'
 import { useUserStore } from '@/stores/user'
 import { useWalletStore } from '@/stores/wallet'
 import type { ArticleBrief, BannerSlide, NoticeItem } from '@/types/home'
+import type { WelfareEntry } from '@/types/welfare'
 
 const preview = usePreviewStore()
 const user = useUserStore()
@@ -22,6 +24,7 @@ const wallets = useWalletStore()
 const banners = ref<BannerSlide[]>(homeBanners)
 const notices = ref<NoticeItem[]>(homeTicker)
 const articles = ref<ArticleBrief[]>(homeArticles)
+const welfareEntry = ref<WelfareEntry | null>(null)
 const hello = computed(() => greetingName(user.nickname || preview.profile.name || '朋友'))
 
 function availableText(key: 'points' | 'withdrawable' | 'consumption'): string {
@@ -40,14 +43,28 @@ onLoad(() => {
     .catch(() => undefined)
 })
 
+function refreshSignedIn() {
+  if (!user.token) return
+  void wallets.load()
+  void loadWelfareEntry()
+}
+
+async function loadWelfareEntry() {
+  try {
+    welfareEntry.value = await fetchWelfareEntry()
+  } catch {
+    // 读取失败时保留上一次的入口。还没有读到过时，卡片不展示配置文案和图片。
+  }
+}
+
 onShow(() => {
-  if (user.token) void wallets.load()
+  refreshSignedIn()
 })
 
 watch(
   () => user.token,
-  (token) => {
-    if (token) void wallets.load()
+  () => {
+    refreshSignedIn()
   },
 )
 </script>
@@ -80,7 +97,7 @@ watch(
     </view>
     <HomeBanner :items="banners" />
     <HomeMarquee :items="notices" />
-    <ZoneEntries />
+    <ZoneEntries :welfare-entry="welfareEntry" />
     <KnowledgeList :items="articles" />
   </AppFrame>
 </template>
