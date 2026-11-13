@@ -1,16 +1,11 @@
 <script setup lang="ts">
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { ref } from 'vue'
-import {
-  postMiniLogin,
-  postMiniPhone,
-  PREVIEW_SUBJECT_MEMBER,
-  PREVIEW_SUBJECT_NONMEMBER,
-  type PreviewSubject,
-} from '@/api/auth'
+import { postMiniLogin, postMiniPhone } from '@/api/auth'
 import { apiErrorMessage } from '@/api/http'
 import { acceptSession, noteAuthFailure } from '@/auth/account-session'
-import { switchPreviewSubject } from '@/auth/preview-entry'
+import { readPreviewSubject, switchPreviewSubject } from '@/auth/preview-entry'
+import PreviewAccountLogin from '@/components/auth/PreviewAccountLogin.vue'
 import AppFrame from '@/components/chrome/AppFrame.vue'
 import { captureInviteCode, captureLaunchInviteCode } from '@/invite/code'
 import { openAfterLogin } from '@/invite/registration'
@@ -26,6 +21,7 @@ import { useUserStore } from '@/stores/user'
 const user = useUserStore()
 const pending = ref(false)
 const errorText = ref('')
+const rememberedSubject = ref(isMpWeixin ? '' : readPreviewSubject())
 
 onLoad((query) => {
   captureInviteCode(query)
@@ -34,7 +30,12 @@ onLoad((query) => {
 
 onShow(() => {
   errorText.value = user.authError
+  if (!isMpWeixin) rememberedSubject.value = readPreviewSubject()
 })
+
+function showPreviewError(message: string) {
+  errorText.value = message
+}
 
 async function onWechatLogin() {
   if (pending.value) return
@@ -71,7 +72,7 @@ async function onGetPhoneNumber(event: PhoneAuthEvent) {
   }
 }
 
-async function enterPreview(subject: PreviewSubject) {
+async function enterPreview(subject: string) {
   if (pending.value) return
   pending.value = true
   errorText.value = ''
@@ -113,14 +114,12 @@ async function enterPreview(subject: PreviewSubject) {
       <text class="auth-title">预览会话</text>
       <text class="auth-sub">这是 H5 开发预览，用来申请测试用户。不是微信登录。</text>
       <view v-if="errorText" class="notice">{{ errorText }}</view>
-      <view class="btn btn-gold btn-block hit" @click="enterPreview(PREVIEW_SUBJECT_MEMBER)"
-        >preview-member</view
-      >
-      <view
-        class="btn btn-ghost btn-block mt-12 hit"
-        @click="enterPreview(PREVIEW_SUBJECT_NONMEMBER)"
-        >preview-nonmember</view
-      >
+      <PreviewAccountLogin
+        :pending="pending"
+        :remembered="rememberedSubject"
+        @enter="enterPreview"
+        @error="showPreviewError"
+      />
       <view class="auth-switch">
         登录之后再
         <text class="auth-link hit" @click="openPage(routes.register)">填写邀请码</text>

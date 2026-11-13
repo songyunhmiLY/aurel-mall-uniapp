@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { ref, watch } from 'vue'
-import {
-  postMiniLogin,
-  PREVIEW_SUBJECT_MEMBER,
-  PREVIEW_SUBJECT_NONMEMBER,
-  type PreviewSubject,
-} from '@/api/auth'
+import { postMiniLogin } from '@/api/auth'
 import { apiErrorMessage } from '@/api/http'
 import { acceptSession, noteAuthFailure } from '@/auth/account-session'
-import { switchPreviewSubject } from '@/auth/preview-entry'
+import { readPreviewSubject, switchPreviewSubject } from '@/auth/preview-entry'
+import PreviewAccountLogin from '@/components/auth/PreviewAccountLogin.vue'
 import AppFrame from '@/components/chrome/AppFrame.vue'
 import {
   captureInviteCode,
@@ -30,6 +26,7 @@ const pending = ref(false)
 const attempted = ref('')
 const errorText = ref('')
 const loginError = ref('')
+const rememberedSubject = ref(isMpWeixin ? '' : readPreviewSubject())
 
 onLoad((query) => {
   const attached = captureInviteCode(query) || captureLaunchInviteCode()
@@ -42,8 +39,13 @@ onLoad((query) => {
 })
 
 onShow(() => {
+  if (!isMpWeixin) rememberedSubject.value = readPreviewSubject()
   void afterSession()
 })
+
+function showLoginError(message: string) {
+  loginError.value = message
+}
 
 watch(
   () => user.userId,
@@ -79,7 +81,7 @@ async function onWechatLogin() {
   }
 }
 
-async function enterPreview(subject: PreviewSubject) {
+async function enterPreview(subject: string) {
   if (pending.value) return
   pending.value = true
   loginError.value = ''
@@ -133,15 +135,12 @@ async function submit() {
           </button>
         </template>
         <template v-else>
-          <view class="btn btn-gold btn-block hit" @click="enterPreview(PREVIEW_SUBJECT_MEMBER)">
-            preview-member
-          </view>
-          <view
-            class="btn btn-ghost btn-block mt-12 hit"
-            @click="enterPreview(PREVIEW_SUBJECT_NONMEMBER)"
-          >
-            preview-nonmember
-          </view>
+          <PreviewAccountLogin
+            :pending="pending"
+            :remembered="rememberedSubject"
+            @enter="enterPreview"
+            @error="showLoginError"
+          />
         </template>
       </template>
       <view class="field">

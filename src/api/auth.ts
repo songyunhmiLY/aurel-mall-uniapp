@@ -21,7 +21,14 @@ export interface AuthSession {
 export const PREVIEW_SUBJECT_MEMBER = 'preview-member'
 export const PREVIEW_SUBJECT_NONMEMBER = 'preview-nonmember'
 
-export type PreviewSubject = typeof PREVIEW_SUBJECT_MEMBER | typeof PREVIEW_SUBJECT_NONMEMBER
+/** 与 aurel-mall-api PreviewLoginDto.subject 相同。 */
+export const PREVIEW_SUBJECT_PATTERN = /^[A-Za-z0-9._-]{1,64}$/
+
+/**
+ * H5 预览身份。快捷按钮只用上面两个常量。
+ * 登录框可以是任意符合 PREVIEW_SUBJECT_PATTERN 的 subject，例如 wx.LuckyPanda000。
+ */
+export type PreviewSubject = string
 
 /** 小程序 wx.login 的 code。手机号不参与这次登录。 */
 export function postMiniLogin(body: { code: string }) {
@@ -45,7 +52,10 @@ export function postMiniPhone(body: { code: string }) {
   })
 }
 
-/** H5 预览会话。subject 是 1–64 位字母、数字、点、下划线或中划线。 */
+/**
+ * H5 预览会话。body 只有 subject，不接收密码。
+ * subject 是 1–64 位字母、数字、点、下划线或中划线。
+ */
 export function postPreviewLogin(body: { subject: string }) {
   return request<unknown>({
     path: '/auth/preview/login',
