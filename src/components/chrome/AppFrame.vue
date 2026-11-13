@@ -41,8 +41,11 @@ function goLogin() {
     <!-- #endif -->
     <NavBar :title="title" :back="showBack" :show-cart="showCart" />
     <view class="frame__body">
+      <view v-if="locked && preview.entering" class="empty">
+        <view class="empty__title">正在进入预览</view>
+      </view>
       <LockPanel
-        v-if="locked"
+        v-else-if="locked"
         title="请先登录"
         text="登录后即可查看首页、商城、钱包与个人中心。"
         action="去登录"

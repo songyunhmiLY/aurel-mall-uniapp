@@ -6,9 +6,12 @@ import './preview-gate.css'
  * 模板里的 form / input / button 会被编译成 uni 组件，
  * 单独 createApp 挂载后，「进入」点击不会提交，看起来像没反应。
  */
-export function mountPreviewGate(): void {
+export function mountPreviewGate(onUnlocked?: () => void): void {
   if (typeof document === 'undefined') return
-  if (!previewGateConfigured() || isPreviewUnlocked()) return
+  if (!previewGateConfigured() || isPreviewUnlocked()) {
+    onUnlocked?.()
+    return
+  }
   if (document.getElementById('preview-gate-root')) return
 
   const host = document.createElement('div')
@@ -61,6 +64,7 @@ export function mountPreviewGate(): void {
         return
       }
       host.remove()
+      onUnlocked?.()
     } catch {
       error.textContent = '当前环境无法校验口令'
       error.hidden = false

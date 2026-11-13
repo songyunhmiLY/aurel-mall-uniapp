@@ -16,6 +16,7 @@ export const routes = {
   paymentAccount: '/pages/settings/payment-account',
   addresses: '/pages/settings/addresses',
   addressEdit: '/pages/settings/address-edit',
+  realName: '/pages/settings/real-name',
   agreements: '/pages/settings/agreements',
   privacy: '/pages/settings/privacy',
   payPassword: '/pages/settings/pay-password',

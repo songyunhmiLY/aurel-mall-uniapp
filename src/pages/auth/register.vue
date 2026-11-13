@@ -1,31 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import AppFrame from '@/components/chrome/AppFrame.vue'
-import { openPage, resetTo, routes } from '@/navigation/routes'
-import { usePreviewStore } from '@/stores/preview'
+import { openPage, routes } from '@/navigation/routes'
 
-const preview = usePreviewStore()
 const phone = ref('')
 const password = ref('')
 const confirm = ref('')
 const invite = ref('AR8K2Q')
 
 function register() {
-  if (!phone.value.trim()) {
-    uni.showToast({ title: '请填写手机号', icon: 'none' })
-    return
-  }
-  if (!password.value || password.value !== confirm.value) {
-    uni.showToast({ title: '请确认两次密码一致', icon: 'none' })
-    return
-  }
-  if (!invite.value.trim()) {
-    uni.showToast({ title: '请填写已有会员的邀请码', icon: 'none' })
-    return
-  }
-  preview.setRole('nonmember')
-  uni.showToast({ title: '注册成功', icon: 'none' })
-  resetTo(routes.home)
+  uni.showToast({ title: '注册尚未接入', icon: 'none' })
 }
 </script>
 
@@ -34,7 +18,9 @@ function register() {
     <view class="auth-page">
       <text class="auth-brand">AUREL</text>
       <text class="auth-title">创建账号</text>
-      <text class="auth-sub">注册为免费用户。邀请码须来自已有会员，注册后即可在创业专区下单成为会员。</text>
+      <text class="auth-sub"
+        >注册为免费用户。邀请码须来自已有会员，注册后即可在创业专区下单成为会员。</text
+      >
       <view class="field">
         <text class="field__label">手机号</text>
         <input v-model="phone" class="auth-input" type="number" placeholder="请输入手机号" />

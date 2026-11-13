@@ -3,7 +3,11 @@ import { onLaunch } from '@dcloudio/uni-app'
 
 onLaunch(() => {
   // #ifdef H5
-  void import('@/auth/mount-preview-gate').then((mod) => mod.mountPreviewGate())
+  void import('@/auth/mount-preview-gate').then((mod) => {
+    mod.mountPreviewGate(() => {
+      void import('@/auth/preview-entry').then((entry) => entry.ensurePreviewSession())
+    })
+  })
   // #endif
 })
 </script>
